@@ -3,7 +3,6 @@ import { DownloadType } from "../types";
 import { Music, Film, FileText, ChevronLeft, ChevronRight, Search, Download, Menu, ChevronDown } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { Badge } from "./ui/badge";
 import { Card, CardContent } from "./ui/card";
 import { Progress } from "./ui/progress";
 
@@ -29,6 +28,7 @@ interface ModernLayoutProps {
   onSearchQueryChange: (query: string) => void;
   onSearch: () => void;
   onDownload: (result: SearchResult) => void;
+  onBatchDownload?: (selectedResults: string[]) => void;
   onToggleSidebar: () => void;
 }
 

@@ -6,8 +6,6 @@ import TaskList from './components/TaskList';
 import {
   useSearchQuery,
   useSearchResults,
-  useSelectedResults,
-  usePagination,
   useActiveType,
   useSelectedPlatform,
   useTasks,
@@ -18,8 +16,8 @@ import {
   useDownloadActions,
 } from './stores/appStore';
 
-// 业务逻辑Hook
-import { useAppLogic } from './hooks/useAppLogic';
+// TanStack Query
+import { useSearchQuery as useSearchQueryHook, usePlatformsQuery, useTasksQuery, useStartDownloadMutation } from './hooks/useReactQuery';
 
 function App() {
   // 本地状态
@@ -39,52 +37,55 @@ function App() {
   const searchActions = useSearchActions();
   const downloadActions = useDownloadActions();
 
+  // TanStack Query数据加载
+  const { data: platformsData } = usePlatformsQuery();
+  const { data: tasksData } = useTasksQuery(activeType);
+  const { mutate: startDownload } = useStartDownloadMutation();
 
-  // 业务逻辑
-  const {
-    loadTasks,
-    handleSearch,
-    handleDownload,
-    handleBatchDownload,
-    handlePageChange,
-    handlePlatformChange,
-    handleTypeChange,
-    getAvailablePlatforms
-  } = useAppLogic();
-
-  // 初始化加载任务和平台数据
+  // 当平台数据加载完成时，更新状态
   React.useEffect(() => {
-    const initializeApp = async () => {
-      try {
-        // 加载平台数据
-        const platforms = await getAvailablePlatforms();
-        if (platforms && platforms.length > 0) {
-          downloadActions.setPlatforms(platforms);
-        } else {
-          // 如果后端没有返回平台数据，使用默认数据
-          const defaultPlatforms = [
-            { id: 'youtube', name: 'YouTube', icon: '▶️', supportedTypes: ['video', 'music'] },
-            { id: 'bilibili', name: 'Bilibili', icon: '📺', supportedTypes: ['video'] },
-            { id: 'netease', name: '网易云音乐', icon: '🎵', supportedTypes: ['music'] },
-            { id: 'qqmusic', name: 'QQ音乐', icon: '🎶', supportedTypes: ['music'] },
-            { id: 'github', name: 'GitHub', icon: '💻', supportedTypes: ['file'] },
-          ];
-          downloadActions.setPlatforms(defaultPlatforms);
-        }
-        
-        // 加载任务
-        loadTasks(activeType);
-      } catch (error) {
-        console.error('初始化应用失败:', error);
-      }
-    };
+    if (platformsData && platformsData.length > 0) {
+      downloadActions.setPlatforms(platformsData);
+    }
+  }, [platformsData, downloadActions]);
 
-    initializeApp();
-  }, [activeType, loadTasks, getAvailablePlatforms, downloadActions]);
+  // 当任务数据加载完成时，更新状态
+  React.useEffect(() => {
+    if (tasksData) {
+      downloadActions.setTasks(tasksData);
+    }
+  }, [tasksData, downloadActions]);
 
-  // 搜索处理
+  // 搜索处理 - 直接使用TanStack Query
   const onSearch = () => {
-    handleSearch(searchQuery, activeType);
+    if (!searchQuery.trim()) return;
+    
+    // 使用TanStack Query进行搜索
+    const { data, isLoading, error } = useSearchQueryHook(
+      searchQuery, 
+      activeType, 
+      selectedPlatform || 'all', 
+      1
+    );
+
+    // 更新状态
+    if (isLoading) {
+      // 使用全局loading状态
+    } else {
+      // 使用全局loading状态
+    }
+
+    if (error) {
+      // 使用全局error状态
+      searchActions.setSearchResults([]);
+    }
+
+    if (data) {
+      // 假设data是SearchResult[]数组
+      searchActions.setSearchResults(data as any);
+      searchActions.setTotalPages(1);
+      // 使用全局error状态
+    }
   };
 
   // 侧边栏切换
@@ -94,17 +95,33 @@ function App() {
 
   // 平台切换
   const onPlatformChange = (platform: string) => {
-    handlePlatformChange(platform);
+    downloadActions.setSelectedPlatform(platform);
+    searchActions.clearSearch();
   };
 
   // 下载类型切换
   const onTypeChange = (type: any) => {
-    handleTypeChange(type);
+    downloadActions.setActiveType(type);
   };
 
-  // 刷新任务列表
-  const onRefreshTasks = () => {
-    loadTasks(activeType);
+  // 下载处理
+  const onDownload = (item: any) => {
+    startDownload({
+      url: item.url,
+      filename: item.title,
+      type: activeType,
+      platform: item.platform || selectedPlatform
+    });
+  };
+
+  // 批量下载
+  const onBatchDownload = (selectedResults: string[]) => {
+    selectedResults.forEach(resultId => {
+      const item = searchResults.find(r => r.id === resultId);
+      if (item) {
+        onDownload(item);
+      }
+    });
   };
 
   return (
@@ -129,7 +146,8 @@ function App() {
         onPlatformChange={onPlatformChange}
         onSearchQueryChange={searchActions.setSearchQuery}
         onSearch={onSearch}
-        onDownload={(item) => handleDownload(item, activeType)}
+        onDownload={onDownload}
+        onBatchDownload={onBatchDownload}
         onToggleSidebar={onToggleSidebar}
       />
       
@@ -137,7 +155,6 @@ function App() {
       <div className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'} p-6`}>
         <TaskList 
           tasks={tasks}
-          onRefresh={onRefreshTasks}
         />
       </div>
     </div>

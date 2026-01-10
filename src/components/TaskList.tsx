@@ -11,13 +11,12 @@ const downloadService = new IpcDownloadService();
 
 interface TaskListProps {
   tasks: DownloadTask[];
-  onRefresh: () => void;
   onTaskUpdate?: (taskId: string, status: DownloadTask["status"]) => void;
   onTaskDelete?: (taskId: string) => void;
   className?: string;
 }
 
-const TaskList = ({ tasks, onRefresh, onTaskUpdate, onTaskDelete, className }: TaskListProps) => {
+const TaskList = ({ tasks, onTaskUpdate, onTaskDelete, className }: TaskListProps) => {
   // 切换任务状态（暂停/恢复）
   const handleToggleTaskStatus = async (taskId: string) => {
     const task = tasks.find(t => t.id === taskId);
@@ -30,15 +29,12 @@ const TaskList = ({ tasks, onRefresh, onTaskUpdate, onTaskDelete, className }: T
       await downloadService.resumeDownload(taskId);
       if (onTaskUpdate) onTaskUpdate(taskId, "downloading");
     }
-
-    onRefresh();
   };
 
   // 删除任务
   const handleDeleteTask = async (taskId: string) => {
     await downloadService.cancelDownload(taskId);
     if (onTaskDelete) onTaskDelete(taskId);
-    onRefresh();
   };
 
   return (

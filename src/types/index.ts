@@ -48,7 +48,6 @@ export interface SearchResult {
   fileType?: string;
   resolution?: string;
   bitrate?: string;
-  uploadDate?: string;
   views?: number;
   likes?: number;
   
@@ -113,4 +112,14 @@ export interface AppSettings {
   download: DownloadConfig;
   theme: "light" | "dark" | "auto";
   language: string;
+}
+
+// 平台信息类型
+export interface PlatformInfo {
+  id: string;
+  name: string;
+  icon: string;
+  description?: string;
+  supportedTypes?: string[];
+  isEnabled?: boolean;
 }
