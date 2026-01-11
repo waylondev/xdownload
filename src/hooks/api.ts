@@ -54,7 +54,7 @@ export const usePlatforms = () => {
 export const useTasks = (type?: 'music' | 'video' | 'file') => {
   return useQuery({
     queryKey: ['tasks', type],
-    queryFn: () => downloadService.getAllTasks(),
+    queryFn: () => downloadService.getAllDownloads(),
     select: (tasks) => type ? tasks.filter((task: any) => task.fileType === mapFileType(type)) : tasks,
     refetchInterval: 5000, // 5秒轮询
   });

@@ -92,4 +92,47 @@ impl DownloadService {
             Err("Task not found".to_string())
         }
     }
+
+    /// 删除下载任务
+    pub fn delete_download(&mut self, id: &str) -> Result<(), String> {
+        if let Some(index) = self.tasks.iter().position(|t| t.id == id) {
+            self.tasks.remove(index);
+            Ok(())
+        } else {
+            Err("Task not found".to_string())
+        }
+    }
+
+    /// 批量删除下载任务
+    pub fn batch_delete_downloads(&mut self, ids: &[String]) -> Result<(), String> {
+        for id in ids {
+            if let Some(index) = self.tasks.iter().position(|t| &t.id == id) {
+                self.tasks.remove(index);
+            }
+        }
+        Ok(())
+    }
+
+    /// 获取下载统计信息
+    pub fn get_download_stats(&self) -> serde_json::Value {
+        let total = self.tasks.len();
+        let completed = self.tasks.iter().filter(|t| t.status == "completed").count();
+        let failed = self.tasks.iter().filter(|t| t.status == "failed").count();
+        let downloading = self.tasks.iter().filter(|t| t.status == "downloading").count();
+        let paused = self.tasks.iter().filter(|t| t.status == "paused").count();
+
+        serde_json::json!({
+            "total": total,
+            "completed": completed,
+            "failed": failed,
+            "downloading": downloading,
+            "paused": paused
+        })
+    }
+
+    /// 清理已完成的任务
+    pub fn cleanup_completed_tasks(&mut self) -> Result<(), String> {
+        self.tasks.retain(|task| task.status != "completed");
+        Ok(())
+    }
 }

@@ -2,8 +2,6 @@
 use super::models::{SearchItem, SearchResponse, SearchSuggestion};
 use rand::random;
 use serde::{Deserialize, Serialize};
-use std::fs;
-use std::path::Path;
 
 // 搜索建议平台配置
 #[derive(Debug, Deserialize, Serialize)]

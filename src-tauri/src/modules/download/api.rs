@@ -84,3 +84,42 @@ pub async fn resume_download(
     let mut service = download_service.lock().map_err(|e| e.to_string())?;
     service.resume_download(&task_id)
 }
+
+/// 删除下载任务
+#[tauri::command]
+pub async fn delete_download(
+    download_service: State<'_, Mutex<DownloadService>>,
+    task_id: String,
+) -> Result<(), String> {
+    let mut service = download_service.lock().map_err(|e| e.to_string())?;
+    service.delete_download(&task_id)
+}
+
+/// 批量删除下载任务
+#[tauri::command]
+pub async fn batch_delete_downloads(
+    download_service: State<'_, Mutex<DownloadService>>,
+    task_ids: Vec<String>,
+) -> Result<(), String> {
+    let mut service = download_service.lock().map_err(|e| e.to_string())?;
+    service.batch_delete_downloads(&task_ids)
+}
+
+/// 获取下载统计信息
+#[tauri::command]
+pub async fn get_download_stats(
+    download_service: State<'_, Mutex<DownloadService>>,
+) -> Result<serde_json::Value, String> {
+    let service = download_service.lock().map_err(|e| e.to_string())?;
+    let stats = service.get_download_stats();
+    Ok(serde_json::json!(stats))
+}
+
+/// 清理已完成的任务
+#[tauri::command]
+pub async fn cleanup_completed_tasks(
+    download_service: State<'_, Mutex<DownloadService>>,
+) -> Result<(), String> {
+    let mut service = download_service.lock().map_err(|e| e.to_string())?;
+    service.cleanup_completed_tasks()
+}

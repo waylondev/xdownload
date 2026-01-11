@@ -4,8 +4,7 @@ import {
   UnifiedDownloadResponse,
   IDownloadOperations,
   DownloadTask,
-  DownloadStatus,
-  FileType
+  DownloadStatus
 } from '../types/unified-interface';
 import { ipcClient } from '../lib/ipc-client';
 
@@ -16,24 +15,12 @@ export class IpcDownloadService implements IDownloadOperations {
    */
   async download(request: UnifiedDownloadRequest): Promise<UnifiedDownloadResponse> {
     try {
-      const response = await ipcClient.download({
-        url: request.url,
-        filename: request.filename,
-        fileType: request.fileType,
-        platform: request.platform,
-        options: request.options
-      });
+      const response = await ipcClient.download(request);
       
-      const taskId = response.taskId;
-
       return {
-        taskId,
+        taskId: response.taskId,
         status: 'pending' as DownloadStatus,
-        message: '下载任务已创建',
-        metadata: {
-          estimatedSize: request.options?.headers?.['content-length'] ? parseInt(request.options.headers['content-length']) : undefined,
-          downloadOptions: request.options
-        }
+        message: '下载任务已创建'
       };
     } catch (error) {
       const errorMessage = `开始下载失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
