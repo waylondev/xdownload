@@ -102,7 +102,7 @@ export function ResultsList({ onDownload }: ResultsListProps) {
             variant="ghost"
             size="sm"
             onClick={handleSelectAll}
-            className="flex items-center gap-2 bg-slate-900/80 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-lg px-4 py-2 transition-all duration-300"
+            className="flex items-center gap-2 bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-700 rounded-xl px-4 py-2 transition-all duration-300"
           >
             {selectedItems.size === paginatedResults.length ? (
               <CheckSquare className="w-4 h-4" />
@@ -124,7 +124,7 @@ export function ResultsList({ onDownload }: ResultsListProps) {
                 selectedResults.forEach((item: any) => onDownload(item));
                 setSelectedItems(new Set());
               }}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 rounded-lg px-4 py-2 transition-all duration-300 shadow-md hover:shadow-blue-500/30"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 rounded-xl px-4 py-2 transition-all duration-300 shadow-lg hover:shadow-blue-500/30"
             >
               <Download className="w-4 h-4 mr-2" />
               <span>批量下载 ({selectedItems.size})</span>
@@ -137,13 +137,13 @@ export function ResultsList({ onDownload }: ResultsListProps) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
         {paginatedResults.map((item: any) => (
           <Card 
-            key={item.id} 
-            className="bg-slate-900/70 backdrop-blur-md border border-slate-800 hover:border-blue-500/30 transition-all duration-500 overflow-hidden rounded-2xl shadow-xl hover:shadow-blue-500/10 group"
-          >
-            {/* 卡片装饰 */}
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              key={item.id} 
+              className="bg-slate-900/90 backdrop-blur-sm border border-slate-800 hover:border-blue-500/40 transition-all duration-500 overflow-hidden rounded-2xl shadow-xl hover:shadow-blue-500/20 group"
+            >
+              {/* 卡片装饰 */}
+              <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             
-            <CardContent className="p-4">
+              <CardContent className="p-5">
               {/* 媒体预览 */}
               <div className="w-full h-40 rounded-xl overflow-hidden shadow-lg group-hover:shadow-blue-500/20 transition-all duration-300 relative mb-4">
                 {item.thumbnail ? (
@@ -208,7 +208,7 @@ export function ResultsList({ onDownload }: ResultsListProps) {
                 {/* 下载按钮 */}
                 <Button
                   onClick={() => onDownload(item)}
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 rounded-lg py-2.5 transition-all duration-300 shadow-md hover:shadow-blue-500/30 hover:scale-105 text-sm"
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 rounded-xl py-2.5 transition-all duration-300 shadow-lg hover:shadow-blue-500/30 hover:scale-105 text-sm"
                 >
                   <Download className="w-4 h-4 mr-2" />
                   <span className="font-medium">下载</span>

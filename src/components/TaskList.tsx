@@ -109,11 +109,11 @@ const TaskList = ({ tasks, onTaskUpdate, onTaskDelete, className }: TaskListProp
   };
 
   return (
-    <Card className={`bg-slate-900/95 backdrop-blur-md border border-slate-800 shadow-xl hover:shadow-2xl transition-all duration-500 rounded-2xl overflow-hidden ${className || ''}`}>
-      <CardHeader className="border-b border-slate-800 bg-slate-900/80 backdrop-blur-sm">
+    <Card className={`bg-slate-900/90 backdrop-blur-sm border border-slate-700 shadow-xl hover:shadow-2xl transition-all duration-500 rounded-2xl overflow-hidden ${className || ''}`}>
+      <CardHeader className="border-b border-slate-800 bg-slate-900/95 backdrop-blur-sm">
         <div className="flex items-center justify-between w-full">
           <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
               <Download className="w-6 h-6 text-white" />
             </div>
             下载任务 ({tasks.length})
@@ -122,7 +122,7 @@ const TaskList = ({ tasks, onTaskUpdate, onTaskDelete, className }: TaskListProp
             <Button
               variant="ghost"
               size="sm"
-              className="bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-lg px-4 py-2 transition-all duration-300"
+              className="bg-slate-800/90 hover:bg-slate-700 text-slate-300 rounded-xl px-4 py-2 transition-all duration-300 border border-slate-700"
             >
               <RotateCcw className="w-4 h-4 mr-2" />
               刷新
@@ -144,29 +144,29 @@ const TaskList = ({ tasks, onTaskUpdate, onTaskDelete, className }: TaskListProp
           /* 移除overflow-x-auto，使用响应式表格设计 */
           <table className="w-full table-auto">
             <thead>
-              <tr className="bg-slate-900/90 border-b border-slate-800">
-                <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400 whitespace-nowrap">文件名</th>
-                <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400 whitespace-nowrap">平台</th>
-                <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400 whitespace-nowrap">状态</th>
-                <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400 whitespace-nowrap">进度</th>
-                <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400 whitespace-nowrap hidden sm:table-cell">大小</th>
-                <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400 whitespace-nowrap hidden md:table-cell">速度</th>
-                <th className="px-3 py-2 text-right text-xs font-semibold text-slate-400 whitespace-nowrap">操作</th>
+              <tr className="bg-slate-900/95 border-b border-slate-700">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 whitespace-nowrap">文件名</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 whitespace-nowrap">平台</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 whitespace-nowrap">状态</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 whitespace-nowrap">进度</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 whitespace-nowrap hidden sm:table-cell">大小</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 whitespace-nowrap hidden md:table-cell">速度</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold text-slate-400 whitespace-nowrap">操作</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800">
               {tasks.map((task) => {
                 const statusDisplay = getStatusDisplay(task.status as any);
                 return (
-                  <tr key={task.id} className="hover:bg-slate-800/30 transition-colors duration-200">
+                  <tr key={task.id} className="hover:bg-slate-800/40 transition-colors duration-200">
                     {/* 文件名 */}
-                    <td className="px-3 py-3">
+                    <td className="px-4 py-3.5">
                       <div className="flex items-center gap-2">
-                        <div className={`w-6 h-6 rounded-md flex items-center justify-center ${statusDisplay.bgColor}`}>
+                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${statusDisplay.bgColor}`}>
                           {statusDisplay.icon}
                         </div>
                         <div className="min-w-0 max-w-[150px] sm:max-w-[250px]">
-                          <h3 className="font-semibold text-slate-100 text-xs truncate">
+                          <h3 className="font-semibold text-slate-100 text-sm truncate">
                             {task.filename}
                           </h3>
                           <p className="text-xs text-slate-500 truncate hidden sm:block">
@@ -177,27 +177,30 @@ const TaskList = ({ tasks, onTaskUpdate, onTaskDelete, className }: TaskListProp
                     </td>
                     
                     {/* 平台 */}
-                    <td className="px-3 py-3">
-                      <span className="text-xs px-2 py-0.5 bg-slate-800 rounded-full text-slate-300 whitespace-nowrap">
+                    <td className="px-4 py-3.5">
+                      <span className="text-xs px-2 py-0.5 bg-slate-800/90 rounded-full text-slate-300 whitespace-nowrap">
                         {task.platform}
                       </span>
                     </td>
                     
                     {/* 状态 */}
-                    <td className="px-3 py-3">
+                    <td className="px-4 py-3.5">
                       <span className={`text-xs font-medium ${statusDisplay.color} whitespace-nowrap`}>
                         {statusDisplay.text}
                       </span>
                     </td>
                     
                     {/* 进度 */}
-                    <td className="px-3 py-3 min-w-[120px]">
-                      <div className="space-y-1">
+                    <td className="px-4 py-3.5 min-w-[120px]">
+                      <div className="space-y-1.5">
                         <div className="flex items-center justify-between text-[10px]">
                           <span className="text-slate-400 whitespace-nowrap">{task.progress}%</span>
+                          {task.status === "downloading" && task.eta && (
+                            <span className="text-slate-500 whitespace-nowrap">预计剩余: {task.eta}</span>
+                          )}
                         </div>
                         {/* 优化的进度条 */}
-                        <div className="relative h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                        <div className="relative h-2 rounded-full bg-slate-800/90 overflow-hidden">
                           <div 
                             className="absolute left-0 top-0 h-full bg-gradient-to-r from-blue-600 to-purple-600 transition-all duration-300 ease-out"
                             style={{ width: `${task.progress}%` }}
@@ -207,32 +210,32 @@ const TaskList = ({ tasks, onTaskUpdate, onTaskDelete, className }: TaskListProp
                     </td>
                     
                     {/* 大小 - 在小屏幕上隐藏 */}
-                    <td className="px-3 py-3 hidden sm:table-cell">
+                    <td className="px-4 py-3.5 hidden sm:table-cell">
                       <span className="text-xs text-slate-300 whitespace-nowrap">
                         {task.downloaded || '0 B'} / {task.size || '未知'}
                       </span>
                     </td>
                     
                     {/* 速度 - 在中等屏幕以下隐藏 */}
-                    <td className="px-3 py-3 hidden md:table-cell">
+                    <td className="px-4 py-3.5 hidden md:table-cell">
                       <span className="text-xs text-slate-300 whitespace-nowrap">
                         {task.status === "downloading" && task.speed ? task.speed : '-'}  
                       </span>
                     </td>
                     
                     {/* 操作按钮 - 紧凑设计 */}
-                    <td className="px-3 py-3 text-right">
-                      <div className="flex items-center justify-end gap-1">
+                    <td className="px-4 py-3.5 text-right">
+                      <div className="flex items-center justify-end gap-2">
                         {/* 控制按钮 - 图标化设计 */}
                         {(task.status === "downloading" || task.status === "paused" || task.status === "pending") && (
                           <Button
                             variant="default"
                             size="icon"
                             onClick={() => handleToggleTaskStatus(task.id)}
-                            className="h-7 w-7 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 rounded-md transition-all duration-300"
+                            className="h-8 w-8 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 rounded-xl transition-all duration-300"
                             title={task.status === "downloading" ? '暂停' : '开始'}
                           >
-                            {task.status === "downloading" ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
+                            {task.status === "downloading" ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                           </Button>
                         )}
                         
@@ -240,11 +243,11 @@ const TaskList = ({ tasks, onTaskUpdate, onTaskDelete, className }: TaskListProp
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 bg-slate-800 hover:bg-red-500/20 text-slate-300 hover:text-red-400 border border-slate-700 hover:border-red-500/50 rounded-md transition-all duration-300"
+                          className="h-8 w-8 bg-slate-800/90 hover:bg-red-500/30 text-slate-300 hover:text-red-400 border border-slate-700 hover:border-red-500/60 rounded-xl transition-all duration-300"
                           onClick={() => handleDeleteTask(task.id)}
                           title="删除"
                         >
-                          <Trash2 className="h-3 w-3" />
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </td>
