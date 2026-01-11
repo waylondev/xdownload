@@ -1,12 +1,29 @@
 import { useState, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Download } from 'lucide-react';
+import { Download, Music, Film, FileText, Clock, File, ChevronLeft, ChevronRight, PlayCircle, CheckCircle2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
+import { Badge } from './ui/badge';
 
 interface ResultsListProps {
   onDownload: (item: any) => void;
 }
+
+// 获取文件类型图标
+const getFileTypeIcon = (type: string) => {
+  switch (type) {
+    case 'audio':
+    case 'music':
+      return <Music className="w-8 h-8 text-blue-400" />;
+    case 'video':
+      return <Film className="w-8 h-8 text-purple-400" />;
+    case 'document':
+    case 'file':
+      return <FileText className="w-8 h-8 text-green-400" />;
+    default:
+      return <File className="w-8 h-8 text-slate-400" />;
+  }
+};
 
 export function ResultsList({ onDownload }: ResultsListProps) {
   const queryClient = useQueryClient();
@@ -30,103 +47,132 @@ export function ResultsList({ onDownload }: ResultsListProps) {
 
   if (results.length === 0) {
     return (
-      <div className="text-center py-16 text-slate-400">
-        <div className="text-4xl mb-4">🔍</div>
-        <p className="text-lg">输入关键词开始搜索</p>
-        <p className="text-sm mt-2 text-slate-500">支持音乐、视频、文件搜索</p>
+      <div className="text-center py-20 text-slate-400">
+        <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center shadow-xl">
+          <File className="w-10 h-10 text-slate-600" />
+        </div>
+        <h3 className="text-2xl font-bold text-slate-300 mb-3">暂无搜索结果</h3>
+        <p className="text-lg text-slate-500">输入关键词开始搜索</p>
+        <p className="text-sm text-slate-600 mt-2">支持音乐、视频、文件搜索</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 mt-6">
+    <div className="space-y-8 mt-8">
       {/* 结果统计 */}
-      <div className="flex items-center justify-between">
-        <h3 className="text-xl font-bold text-slate-100">搜索结果</h3>
-        <p className="text-sm text-slate-400">共 {totalItems} 条结果</p>
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <h3 className="text-2xl font-bold bg-gradient-to-r from-slate-100 to-slate-300 bg-clip-text text-transparent">搜索结果</h3>
+          <p className="text-sm text-slate-500 mt-1">为您找到 {totalItems} 条相关结果</p>
+        </div>
       </div>
       
       {/* 结果列表 */}
-      <div className="space-y-4">
+      <div className="grid grid-cols-1 gap-6">
         {paginatedResults.map((item: any) => (
-          <Card key={item.id} className="bg-slate-800 border-slate-700 hover:border-blue-500/50 transition-all duration-300 overflow-hidden">
-            <CardContent className="p-5">
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                {/* 左侧内容 */}
+          <Card 
+            key={item.id} 
+            className="bg-slate-900/70 backdrop-blur-md border border-slate-800 hover:border-blue-500/30 transition-all duration-500 overflow-hidden rounded-2xl shadow-xl hover:shadow-blue-500/10 group"
+          >
+            {/* 卡片装饰 */}
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            
+            <CardContent className="p-6">
+              <div className="flex flex-col md:flex-row gap-6">
+                {/* 媒体预览 */}
+                <div className="w-full md:w-24 h-24 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center shadow-lg group-hover:shadow-blue-500/20 transition-all duration-300">
+                  {getFileTypeIcon(item.fileType)}
+                </div>
+                
+                {/* 内容信息 */}
                 <div className="flex-1 min-w-0">
-                  {/* 标题 */}
-                  <h4 className="font-semibold text-lg text-slate-100 line-clamp-2 mb-2">
-                    {item.title}
-                  </h4>
-                  
-                  {/* 描述 */}
-                  {item.description && (
-                    <p className="text-sm text-slate-400 line-clamp-2 mb-4">
-                      {item.description}
-                    </p>
-                  )}
+                  {/* 标题和描述 */}
+                  <div className="space-y-2">
+                    <h4 className="text-xl font-bold text-slate-100 line-clamp-2 group-hover:text-blue-400 transition-colors duration-300">
+                      {item.title}
+                    </h4>
+                    {item.description && (
+                      <p className="text-sm text-slate-500 line-clamp-3">
+                        {item.description}
+                      </p>
+                    )}
+                  </div>
                   
                   {/* 文件信息 */}
-                  <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+                  <div className="flex flex-wrap items-center gap-3 mt-4">
                     {/* 平台 */}
-                    <div className="flex items-center gap-2 text-slate-400">
-                      <span className="text-xs px-2 py-1 bg-slate-700 rounded-full">
-                        {item.platform}
-                      </span>
-                    </div>
+                    <Badge variant="secondary" className="bg-slate-800/80 text-slate-300 hover:bg-slate-700 border-0 rounded-full px-3 py-1 text-sm">
+                      {item.platform}
+                    </Badge>
                     
                     {/* 文件类型 */}
-                    <div className="flex items-center gap-2 text-slate-400">
-                      <span className="text-xs px-2 py-1 bg-slate-700 rounded-full capitalize">
-                        {item.fileType}
-                      </span>
-                    </div>
+                    <Badge variant="secondary" className="bg-slate-800/80 text-slate-300 hover:bg-slate-700 border-0 rounded-full px-3 py-1 text-sm capitalize">
+                      {item.fileType}
+                    </Badge>
                     
                     {/* 大小 */}
                     {item.size && (
-                      <div className="flex items-center gap-2 text-slate-400">
-                        <span className="material-symbols-outlined text-xs">folder</span>
+                      <div className="flex items-center gap-1 text-sm text-slate-500">
+                        <File className="w-4 h-4" />
                         <span>{item.size}</span>
                       </div>
                     )}
                     
                     {/* 时长 */}
                     {item.duration && (
-                      <div className="flex items-center gap-2 text-slate-400">
-                        <span className="material-symbols-outlined text-xs">schedule</span>
+                      <div className="flex items-center gap-1 text-sm text-slate-500">
+                        <Clock className="w-4 h-4" />
                         <span>{item.duration}</span>
                       </div>
                     )}
                     
                     {/* 质量 */}
                     {item.quality && (
-                      <div className="flex items-center gap-2 text-slate-400">
-                        <span className="text-xs px-2 py-1 bg-blue-500/20 text-blue-400 rounded-full">
-                          {item.quality}
-                        </span>
-                      </div>
+                      <Badge className="bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 border-0 rounded-full px-3 py-1 text-sm">
+                        {item.quality}
+                      </Badge>
                     )}
                     
                     {/* 格式 */}
                     {item.format && (
-                      <div className="flex items-center gap-2 text-slate-400">
-                        <span className="text-xs font-mono bg-slate-700 px-2 py-1 rounded">
-                          {item.format}
-                        </span>
-                      </div>
+                      <Badge variant="outline" className="border-slate-700 text-slate-400 hover:bg-slate-800 rounded-full px-3 py-1 text-sm font-mono">
+                        {item.format}
+                      </Badge>
                     )}
                   </div>
                 </div>
                 
-                {/* 右侧下载按钮 */}
-                <Button 
-                  size="sm" 
-                  onClick={() => onDownload(item)}
-                  className="bg-blue-600 hover:bg-blue-700 transition-colors flex items-center gap-2 whitespace-nowrap"
-                >
-                  <Download className="w-4 h-4" />
-                  下载
-                </Button>
+                {/* 下载按钮 */}
+                <div className="flex flex-col gap-3 justify-start">
+                  <Button
+                    onClick={() => onDownload(item)}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 rounded-xl px-6 py-3 transition-all duration-300 shadow-lg hover:shadow-blue-500/30 hover:scale-105 group"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Download className="w-5 h-5 group-hover:translate-y-[-2px] transition-transform duration-300" />
+                      <span className="font-semibold">下载</span>
+                    </div>
+                  </Button>
+                  
+                  {/* 快速操作 */}
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-lg px-3 py-2 transition-all duration-300"
+                    >
+                      <PlayCircle className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-lg px-3 py-2 transition-all duration-300"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -135,14 +181,15 @@ export function ResultsList({ onDownload }: ResultsListProps) {
       
       {/* 分页 */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 py-6">
+        <div className="flex items-center justify-center gap-2 py-8">
           <Button
             variant="ghost"
-            size="sm"
+            size="lg"
             onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
             disabled={currentPage === 1}
-            className="bg-slate-800 hover:bg-slate-700 text-slate-300"
+            className="bg-slate-900/80 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl px-5 py-2.5 transition-all duration-300 disabled:opacity-50 disabled:pointer-events-none"
           >
+            <ChevronLeft className="w-5 h-5 mr-2" />
             上一页
           </Button>
           
@@ -165,9 +212,9 @@ export function ResultsList({ onDownload }: ResultsListProps) {
                 <Button
                   key={pageNumber}
                   variant={currentPage === pageNumber ? "default" : "ghost"}
-                  size="sm"
+                  size="lg"
                   onClick={() => setCurrentPage(pageNumber)}
-                  className={`w-8 h-8 p-0 ${currentPage === pageNumber ? 'bg-blue-600 hover:bg-blue-700' : 'bg-slate-800 hover:bg-slate-700 text-slate-300'}`}
+                  className={`w-11 h-11 p-0 rounded-xl transition-all duration-300 ${currentPage === pageNumber ? 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg shadow-blue-500/20' : 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 border border-slate-800'}`}
                 >
                   {pageNumber}
                 </Button>
@@ -177,12 +224,13 @@ export function ResultsList({ onDownload }: ResultsListProps) {
           
           <Button
             variant="ghost"
-            size="sm"
+            size="lg"
             onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
             disabled={currentPage === totalPages}
-            className="bg-slate-800 hover:bg-slate-700 text-slate-300"
+            className="bg-slate-900/80 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl px-5 py-2.5 transition-all duration-300 disabled:opacity-50 disabled:pointer-events-none"
           >
             下一页
+            <ChevronRight className="w-5 h-5 ml-2" />
           </Button>
         </div>
       )}

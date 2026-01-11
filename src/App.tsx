@@ -4,7 +4,7 @@ import { useSearch, usePlatforms, useTasks, useDownload } from './hooks/api';
 import { SearchBar } from './components/SearchBar';
 import { ResultsList } from './components/ResultsList';
 import TaskList from './components/TaskList';
-import { Music, Film, FileText, Menu, X, Github } from 'lucide-react';
+import { Music, Film, FileText, Menu, X, Github, Zap, Database, Settings, Info } from 'lucide-react';
 
 function App() {
   // 状态
@@ -46,38 +46,44 @@ function App() {
   };
 
   return (
-    <div className="flex h-screen bg-slate-900 text-slate-100 overflow-hidden">
+    <div className="flex h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 overflow-hidden">
       {/* 左侧可收缩Sidebar */}
       <aside 
-        className={`bg-slate-800 border-r border-slate-700 transition-all duration-300 ${sidebarCollapsed ? 'w-16' : 'w-64'} flex flex-col`}
+        className={`bg-slate-900/95 backdrop-blur-md border-r border-slate-800 transition-all duration-500 ease-in-out ${sidebarCollapsed ? 'w-20' : 'w-72'} flex flex-col shadow-2xl z-10`}
       >
         {/* Logo区域 */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-700">
-          <h1 className={`text-xl font-bold text-blue-400 transition-all duration-300 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
-            XDownload
-          </h1>
+        <div className="flex items-center justify-between p-5 border-b border-slate-800">
+          <div className={`flex items-center gap-3 transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
+            <Zap className="w-6 h-6 text-blue-500 animate-pulse" />
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+              XDownload
+            </h1>
+          </div>
           <button 
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="p-2 rounded-lg hover:bg-slate-700 transition-colors flex-shrink-0"
-            style={{ minWidth: '32px', minHeight: '32px' }}
+            className="p-2 rounded-full bg-slate-800 hover:bg-slate-700 transition-all duration-300 hover:scale-110"
+            style={{ minWidth: '36px', minHeight: '36px' }}
           >
-            {sidebarCollapsed ? <Menu className="w-5 h-5" /> : <X className="w-5 h-5" />}
+            {sidebarCollapsed ? <Menu className="w-5 h-5 text-blue-400" /> : <X className="w-5 h-5 text-blue-400" />}
           </button>
         </div>
 
         {/* 导航菜单 */}
-        <nav className="p-4 space-y-2">
-          <div className={`text-xs uppercase text-slate-500 mb-2 font-semibold transition-opacity duration-300 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-900">
+          {/* 主要导航 */}
+          <div className={`text-xs uppercase text-slate-500 mb-3 font-semibold px-3 transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
             内容类型
           </div>
           
           {/* 音乐选项 */}
           <button
             onClick={() => handleTypeChange('music')}
-            className={`flex items-center gap-3 w-full p-3 rounded-lg transition-all ${activeType === 'music' ? 'bg-blue-600 text-white' : 'hover:bg-slate-700'}`}
+            className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all duration-300 ${activeType === 'music' ? 'bg-gradient-to-r from-blue-600/20 to-blue-700/20 border border-blue-500/30 text-blue-400' : 'hover:bg-slate-800/80 border border-transparent'}`}
           >
-            <Music className="w-5 h-5" />
-            <span className={`transition-opacity duration-300 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${activeType === 'music' ? 'bg-blue-500/20' : 'bg-slate-800'}`}>
+              <Music className="w-5 h-5" />
+            </div>
+            <span className={`transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
               音乐
             </span>
           </button>
@@ -85,10 +91,12 @@ function App() {
           {/* 视频选项 */}
           <button
             onClick={() => handleTypeChange('video')}
-            className={`flex items-center gap-3 w-full p-3 rounded-lg transition-all ${activeType === 'video' ? 'bg-blue-600 text-white' : 'hover:bg-slate-700'}`}
+            className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all duration-300 ${activeType === 'video' ? 'bg-gradient-to-r from-blue-600/20 to-blue-700/20 border border-blue-500/30 text-blue-400' : 'hover:bg-slate-800/80 border border-transparent'}`}
           >
-            <Film className="w-5 h-5" />
-            <span className={`transition-opacity duration-300 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${activeType === 'video' ? 'bg-blue-500/20' : 'bg-slate-800'}`}>
+              <Film className="w-5 h-5" />
+            </div>
+            <span className={`transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
               视频
             </span>
           </button>
@@ -96,25 +104,71 @@ function App() {
           {/* 文件选项 */}
           <button
             onClick={() => handleTypeChange('file')}
-            className={`flex items-center gap-3 w-full p-3 rounded-lg transition-all ${activeType === 'file' ? 'bg-blue-600 text-white' : 'hover:bg-slate-700'}`}
+            className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all duration-300 ${activeType === 'file' ? 'bg-gradient-to-r from-blue-600/20 to-blue-700/20 border border-blue-500/30 text-blue-400' : 'hover:bg-slate-800/80 border border-transparent'}`}
           >
-            <FileText className="w-5 h-5" />
-            <span className={`transition-opacity duration-300 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${activeType === 'file' ? 'bg-blue-500/20' : 'bg-slate-800'}`}>
+              <FileText className="w-5 h-5" />
+            </div>
+            <span className={`transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
               文件
+            </span>
+          </button>
+
+          {/* 分隔线 */}
+          <div className="h-px bg-slate-800 my-4 opacity-50"></div>
+
+          {/* 次级导航 */}
+          <div className={`text-xs uppercase text-slate-500 mb-3 font-semibold px-3 transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
+            系统
+          </div>
+
+          {/* 数据管理 */}
+          <button
+            className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all duration-300 hover:bg-slate-800/80 border border-transparent`}
+          >
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-slate-800">
+              <Database className="w-5 h-5 text-slate-400" />
+            </div>
+            <span className={`transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
+              数据管理
+            </span>
+          </button>
+
+          {/* 设置 */}
+          <button
+            className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all duration-300 hover:bg-slate-800/80 border border-transparent`}
+          >
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-slate-800">
+              <Settings className="w-5 h-5 text-slate-400" />
+            </div>
+            <span className={`transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
+              设置
+            </span>
+          </button>
+
+          {/* 关于 */}
+          <button
+            className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all duration-300 hover:bg-slate-800/80 border border-transparent`}
+          >
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-slate-800">
+              <Info className="w-5 h-5 text-slate-400" />
+            </div>
+            <span className={`transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
+              关于
             </span>
           </button>
         </nav>
 
         {/* Github地址 - 左下角 */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700 bg-slate-800">
+        <div className="p-5 border-t border-slate-800 bg-slate-900/80">
           <a 
             href="https://github.com" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="flex items-center gap-2 justify-center p-2 rounded-lg hover:bg-slate-700 transition-colors"
+            className="flex items-center gap-3 justify-center p-3 rounded-xl bg-slate-800 hover:bg-slate-700 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20"
           >
-            <Github className="w-5 h-5 text-slate-400" />
-            <span className={`text-xs text-slate-400 transition-opacity duration-300 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
+            <Github className="w-5 h-5 text-slate-400 group-hover:text-blue-400 transition-colors" />
+            <span className={`text-sm font-medium text-slate-400 group-hover:text-blue-400 transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
               GitHub
             </span>
           </a>
@@ -122,20 +176,39 @@ function App() {
       </aside>
 
       {/* 右侧主内容区 */}
-      <main className="flex-1 overflow-y-auto bg-slate-900">
-        <div className="container mx-auto p-6 space-y-6">
+      <main className="flex-1 overflow-y-auto bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+        {/* 顶部装饰 */}
+        <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-blue-500/5 rounded-full blur-3xl -z-10"></div>
+        <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-purple-500/5 rounded-full blur-3xl -z-10"></div>
+        
+        <div className="container mx-auto p-8 space-y-8">
+          {/* 页面标题 */}
+          <div className="flex items-center gap-3 mb-2">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-blue-600 to-purple-600 shadow-lg shadow-blue-500/20`}>
+              {activeType === 'music' && <Music className="w-6 h-6 text-white" />}
+              {activeType === 'video' && <Film className="w-6 h-6 text-white" />}
+              {activeType === 'file' && <FileText className="w-6 h-6 text-white" />}
+            </div>
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-slate-100 to-slate-300 bg-clip-text text-transparent">
+              {activeType === 'music' && '音乐'}
+              {activeType === 'video' && '视频'}
+              {activeType === 'file' && '文件'}
+            </h2>
+          </div>
+          
           {/* 搜索区域 */}
-          <SearchBar
-            searchQuery={searchQuery}
-            activeType={activeType}
-            selectedPlatform={selectedPlatform}
-            platforms={platforms}
-            onSearchQueryChange={setSearchQuery}
-            onTypeChange={setActiveType}
-            onPlatformChange={setSelectedPlatform}
-            onSearch={handleSearch}
-            loading={searchLoading}
-          />
+          <div className="bg-slate-900/50 backdrop-blur-md p-6 rounded-2xl border border-slate-800 shadow-xl">
+            <SearchBar
+              searchQuery={searchQuery}
+              activeType={activeType}
+              selectedPlatform={selectedPlatform}
+              platforms={platforms}
+              onSearchQueryChange={setSearchQuery}
+              onPlatformChange={setSelectedPlatform}
+              onSearch={handleSearch}
+              loading={searchLoading}
+            />
+          </div>
           
           {/* 搜索结果 */}
           <ResultsList
@@ -143,7 +216,7 @@ function App() {
           />
           
           {/* 下载任务列表 */}
-          <div className="mt-8">
+          <div className="bg-slate-900/50 backdrop-blur-md p-6 rounded-2xl border border-slate-800 shadow-xl">
             <TaskList tasks={tasks} />
           </div>
         </div>
