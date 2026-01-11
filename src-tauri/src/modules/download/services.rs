@@ -1,7 +1,7 @@
 // 下载模块 - 服务层
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use super::models::DownloadTask;
+use super::models::{DownloadTask, DownloadStatus};
 
 /// 下载服务实现
 #[derive(Debug, Default)]
@@ -116,10 +116,10 @@ impl DownloadService {
     /// 获取下载统计信息
     pub fn get_download_stats(&self) -> serde_json::Value {
         let total = self.tasks.len();
-        let completed = self.tasks.iter().filter(|t| t.status == "completed").count();
-        let failed = self.tasks.iter().filter(|t| t.status == "failed").count();
-        let downloading = self.tasks.iter().filter(|t| t.status == "downloading").count();
-        let paused = self.tasks.iter().filter(|t| t.status == "paused").count();
+        let completed = self.tasks.iter().filter(|t| t.status == DownloadStatus::Completed).count();
+        let failed = self.tasks.iter().filter(|t| t.status == DownloadStatus::Failed).count();
+        let downloading = self.tasks.iter().filter(|t| t.status == DownloadStatus::Downloading).count();
+        let paused = self.tasks.iter().filter(|t| t.status == DownloadStatus::Paused).count();
 
         serde_json::json!({
             "total": total,
@@ -132,7 +132,7 @@ impl DownloadService {
 
     /// 清理已完成的任务
     pub fn cleanup_completed_tasks(&mut self) -> Result<(), String> {
-        self.tasks.retain(|task| task.status != "completed");
+        self.tasks.retain(|task| task.status != DownloadStatus::Completed);
         Ok(())
     }
 }
