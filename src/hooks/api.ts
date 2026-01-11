@@ -35,8 +35,9 @@ export const useSearch = () => {
       page: params.page,
       pageSize: params.pageSize
     }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['search'] });
+    onSuccess: (data) => {
+      // 将搜索结果保存到React Query缓存中
+      queryClient.setQueryData(['search'], data);
     }
   });
 };

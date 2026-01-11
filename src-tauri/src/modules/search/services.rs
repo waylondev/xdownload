@@ -68,15 +68,28 @@ impl SearchService {
         page: u32,
         page_size: u32,
     ) -> SearchResponse {
-        // 获取指定平台的搜索服务
-        let search_service = self.platform_service_manager.get_search_service(platform);
-        
-        // 调用平台搜索服务
-        let platform_items = if let Some(service) = search_service {
-            service.search(query, file_type, page, page_size).await
+        // 获取搜索服务列表
+        let search_services = if platform == "all" {
+            // 如果是"all"平台，获取所有搜索服务
+            self.platform_service_manager.get_all_search_services()
         } else {
-            Vec::new()
+            // 否则获取指定平台的搜索服务
+            if let Some(service) = self.platform_service_manager.get_search_service(platform) {
+                vec![service]
+            } else {
+                Vec::new()
+            }
         };
+        
+        // 调用所有平台搜索服务并合并结果
+        let mut all_platform_items = Vec::new();
+        for service in search_services {
+            let mut platform_items = service.search(query, file_type, page, page_size).await;
+            all_platform_items.extend(platform_items);
+        }
+        
+        // 限制结果数量
+        let platform_items = all_platform_items.into_iter().take(page_size as usize).collect::<Vec<_>>();
         
         // 将平台搜索结果转换为搜索模块的结果格式
         let items: Vec<SearchItem> = platform_items.into_iter().map(|item| {
