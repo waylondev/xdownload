@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Download, Music, Film, FileText, Clock, File, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Download, Music, Film, FileText, Clock, File, ChevronLeft, ChevronRight, CheckSquare, Square } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
@@ -28,6 +28,7 @@ const getFileTypeIcon = (type: string) => {
 export function ResultsList({ onDownload }: ResultsListProps) {
   const queryClient = useQueryClient();
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const pageSize = 10;
   
   // 从React Query缓存中获取搜索结果
@@ -36,14 +37,41 @@ export function ResultsList({ onDownload }: ResultsListProps) {
   const totalItems = searchData?.total || 0;
   const totalPages = Math.ceil(totalItems / pageSize);
 
-  // 重置页码当搜索结果变化时
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [results.length]);
-
   // 分页计算
   const startIndex = (currentPage - 1) * pageSize;
   const paginatedResults = results.slice(startIndex, startIndex + pageSize);
+
+  // 重置页码和选中项当搜索结果变化时
+  useEffect(() => {
+    setCurrentPage(1);
+    setSelectedItems(new Set());
+  }, [results.length]);
+
+  // 重置选中项当页面变化时
+  useEffect(() => {
+    setSelectedItems(new Set());
+  }, [currentPage]);
+
+  // 全选/取消全选功能
+  const handleSelectAll = () => {
+    if (selectedItems.size === paginatedResults.length) {
+      setSelectedItems(new Set());
+    } else {
+      const allIds = paginatedResults.map((item: any) => item.id);
+      setSelectedItems(new Set(allIds));
+    }
+  };
+
+  // 单个选中/取消选中功能
+  const handleSelectItem = (id: string) => {
+    const newSelected = new Set(selectedItems);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedItems(newSelected);
+  };
 
   if (results.length === 0) {
     return (
@@ -60,11 +88,48 @@ export function ResultsList({ onDownload }: ResultsListProps) {
 
   return (
     <div className="space-y-8 mt-8">
-      {/* 结果统计 */}
+      {/* 结果统计和操作 */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h3 className="text-2xl font-bold bg-gradient-to-r from-slate-100 to-slate-300 bg-clip-text text-transparent">搜索结果</h3>
           <p className="text-sm text-slate-500 mt-1">为您找到 {totalItems} 条相关结果</p>
+        </div>
+        
+        {/* 批量操作按钮 */}
+        <div className="flex items-center gap-3">
+          {/* 全选按钮 */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleSelectAll}
+            className="flex items-center gap-2 bg-slate-900/80 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-lg px-4 py-2 transition-all duration-300"
+          >
+            {selectedItems.size === paginatedResults.length ? (
+              <CheckSquare className="w-4 h-4" />
+            ) : (
+              <Square className="w-4 h-4" />
+            )}
+            <span>全选</span>
+            {selectedItems.size > 0 && (
+              <span className="text-xs text-slate-500">({selectedItems.size}/{paginatedResults.length})</span>
+            )}
+          </Button>
+          
+          {/* 批量下载按钮 */}
+          {selectedItems.size > 0 && (
+            <Button
+              size="sm"
+              onClick={() => {
+                const selectedResults = paginatedResults.filter((item: any) => selectedItems.has(item.id));
+                selectedResults.forEach((item: any) => onDownload(item));
+                setSelectedItems(new Set());
+              }}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 rounded-lg px-4 py-2 transition-all duration-300 shadow-md hover:shadow-blue-500/30"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              <span>批量下载 ({selectedItems.size})</span>
+            </Button>
+          )}
         </div>
       </div>
       
@@ -81,6 +146,23 @@ export function ResultsList({ onDownload }: ResultsListProps) {
             <CardContent className="p-4">
               {/* 媒体预览 */}
               <div className="w-full h-40 rounded-xl overflow-hidden shadow-lg group-hover:shadow-blue-500/20 transition-all duration-300 relative mb-4">
+                {/* 复选框 */}
+                <div 
+                  className="absolute top-2 left-2 z-10 cursor-pointer" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSelectItem(item.id);
+                  }}
+                >
+                  <div className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all duration-300 ${selectedItems.has(item.id) ? 'bg-blue-600 text-white' : 'bg-black/50 backdrop-blur-sm hover:bg-blue-600/50 text-white'}`}>
+                    {selectedItems.has(item.id) ? (
+                      <CheckSquare className="w-4 h-4" />
+                    ) : (
+                      <Square className="w-4 h-4" />
+                    )}
+                  </div>
+                </div>
+                
                 {item.thumbnail ? (
                   <img 
                     src={item.thumbnail} 
