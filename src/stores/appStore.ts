@@ -211,7 +211,9 @@ export const useSearchActions = () => useAppStore(state => ({
   toggleSelectAll: state.toggleSelectAll,
   setCurrentPage: state.setCurrentPage,
   setTotalPages: state.setTotalPages,
-  clearSearch: state.clearSearch
+  clearSearch: state.clearSearch,
+  setLoading: state.setLoading,
+  setError: state.setError
 }));
 
 export const useDownloadActions = () => useAppStore(state => ({
