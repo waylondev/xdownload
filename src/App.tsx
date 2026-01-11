@@ -7,12 +7,8 @@ import {
   useSearchQuery,
   useActiveType,
   useSelectedPlatform,
-  useTasks,
   useSearchActions,
-  useDownloadActions,
-  useSearchResults,
-  usePlatforms,
-  useLoading
+  useDownloadActions
 } from './stores/appStore';
 
 // TanStack Query
@@ -24,12 +20,8 @@ function App() {
 
   // Zustand状态
   const searchQuery = useSearchQuery();
-  const searchResults = useSearchResults();
   const activeType = useActiveType();
   const selectedPlatform = useSelectedPlatform();
-  const tasks = useTasks();
-  const platforms = usePlatforms();
-  const loading = useLoading();
 
   // Zustand操作
   const searchActions = useSearchActions();
@@ -54,20 +46,6 @@ function App() {
       pageSize: 10
     });
   };
-
-  // 当平台数据加载完成时，更新状态
-  React.useEffect(() => {
-    if (platformsData && platformsData.length > 0) {
-      downloadActions.setPlatforms(platformsData);
-    }
-  }, [platformsData, downloadActions]);
-
-  // 当任务数据加载完成时，更新状态
-  React.useEffect(() => {
-    if (tasksData) {
-      downloadActions.setTasks(tasksData);
-    }
-  }, [tasksData, downloadActions]);
 
   // 侧边栏切换
   const onToggleSidebar = () => {
@@ -100,20 +78,15 @@ function App() {
     searchActions.setSearchQuery(query);
   };
 
-  // 任务删除处理
-  const onTaskDelete = (taskId: string) => {
-    downloadActions.removeTask(taskId);
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       <ModernLayout
         activeType={activeType}
         searchQuery={searchQuery}
-        searchResults={searchResults}
+        searchResults={[]}
         selectedPlatform={selectedPlatform}
-        availablePlatforms={platforms}
-        loading={loading}
+        availablePlatforms={platformsData || []}
+        loading={false}
         sidebarCollapsed={sidebarCollapsed}
         onToggleSidebar={onToggleSidebar}
         onTypeChange={onTypeChange}
@@ -125,8 +98,7 @@ function App() {
       
       <div className="container mx-auto px-4 py-6">
         <TaskList 
-          tasks={tasks} 
-          onTaskDelete={onTaskDelete}
+          tasks={tasksData || []}
         />
       </div>
     </div>
