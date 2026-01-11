@@ -9,15 +9,17 @@ import { UnifiedDownloadRequest } from '../types/unified-interface';
 const searchService = new IpcSearchService();
 const downloadService = new IpcDownloadService();
 
+import { UnifiedSearchResponse } from '../types/unified-interface';
+
 // 搜索查询Hook
-export function useSearchQuery(
+export function useSearchResultsQuery(
   query: string,
   type: DownloadType,
   platform: string,
   page: number,
-  options?: Omit<UseQueryOptions, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<UnifiedSearchResponse, Error>, 'queryKey' | 'queryFn'>
 ) {
-  return useQuery({
+  return useQuery<UnifiedSearchResponse, Error>({
     queryKey: queryKeys.search(query, type, platform, page),
     queryFn: () => searchService.search({
       query: query,

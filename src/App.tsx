@@ -1,6 +1,7 @@
 import React from 'react';
 import ModernLayout from './components/ModernLayout';
 import TaskList from './components/TaskList';
+import { SearchResult } from './types';
 
 // 状态管理
 import {
@@ -12,7 +13,7 @@ import {
 } from './stores/appStore';
 
 // TanStack Query
-import { usePlatformsQuery, useTasksQuery, useStartDownloadMutation, useSearchMutation } from './hooks/useReactQuery';
+import { usePlatformsQuery, useTasksQuery, useStartDownloadMutation, useSearchResultsQuery } from './hooks/useReactQuery';
 
 function App() {
   // 本地状态
@@ -32,19 +33,28 @@ function App() {
   const { data: tasksData } = useTasksQuery(activeType);
   const { mutate: startDownload } = useStartDownloadMutation();
 
-  // 搜索处理 - 使用TanStack Query mutation进行搜索
-  const { mutate: searchMutate } = useSearchMutation();
-  
+  // 使用useSearchResultsQuery获取搜索结果
+  const { data: searchResponse, isLoading: searchLoading } = useSearchResultsQuery(
+    searchQuery,
+    activeType,
+    selectedPlatform || 'all',
+    1,
+    {
+      enabled: !!searchQuery.trim() // 只有当搜索查询不为空时才执行
+    }
+  );
+
+  // 将搜索响应转换为ModernLayout期望的SearchResult[]类型
+  const searchResults = React.useMemo(() => {
+    if (!searchResponse || !Array.isArray(searchResponse.items)) {
+      return [];
+    }
+    return searchResponse.items as unknown as SearchResult[];
+  }, [searchResponse]);
+
   const onSearch = () => {
-    if (!searchQuery.trim()) return;
-    
-    searchMutate({
-      query: searchQuery,
-      fileType: activeType,
-      platform: selectedPlatform || 'all',
-      page: 1,
-      pageSize: 10
-    });
+    // 搜索会自动触发，因为我们启用了enabled条件
+    // 这里可以添加额外的逻辑，比如滚动到顶部等
   };
 
   // 侧边栏切换
@@ -83,10 +93,10 @@ function App() {
       <ModernLayout
         activeType={activeType}
         searchQuery={searchQuery}
-        searchResults={[]}
+        searchResults={searchResults || []}
         selectedPlatform={selectedPlatform}
         availablePlatforms={platformsData || []}
-        loading={false}
+        loading={searchLoading}
         sidebarCollapsed={sidebarCollapsed}
         onToggleSidebar={onToggleSidebar}
         onTypeChange={onTypeChange}
