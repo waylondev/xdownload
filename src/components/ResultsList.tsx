@@ -146,28 +146,12 @@ export function ResultsList({ onDownload }: ResultsListProps) {
             <CardContent className="p-4">
               {/* 媒体预览 */}
               <div className="w-full h-40 rounded-xl overflow-hidden shadow-lg group-hover:shadow-blue-500/20 transition-all duration-300 relative mb-4">
-                {/* 复选框 */}
-                <div 
-                  className="absolute top-2 left-2 z-10 cursor-pointer" 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSelectItem(item.id);
-                  }}
-                >
-                  <div className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all duration-300 ${selectedItems.has(item.id) ? 'bg-blue-600 text-white' : 'bg-black/50 backdrop-blur-sm hover:bg-blue-600/50 text-white'}`}>
-                    {selectedItems.has(item.id) ? (
-                      <CheckSquare className="w-4 h-4" />
-                    ) : (
-                      <Square className="w-4 h-4" />
-                    )}
-                  </div>
-                </div>
-                
                 {item.thumbnail ? (
                   <img 
                     src={item.thumbnail} 
                     alt={item.title} 
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    referrerPolicy="no-referrer"
                   />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center">
@@ -220,14 +204,29 @@ export function ResultsList({ onDownload }: ResultsListProps) {
               </div>
               
               {/* 操作按钮 */}
-              <div className="w-full">
+              <div className="flex items-center gap-2">
+                {/* 下载按钮 */}
                 <Button
                   onClick={() => onDownload(item)}
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 rounded-lg py-2.5 transition-all duration-300 shadow-md hover:shadow-blue-500/30 hover:scale-105 text-sm"
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 rounded-lg py-2.5 transition-all duration-300 shadow-md hover:shadow-blue-500/30 hover:scale-105 text-sm"
                 >
                   <Download className="w-4 h-4 mr-2" />
                   <span className="font-medium">下载</span>
                 </Button>
+                
+                {/* 复选框 */}
+                <div 
+                  className="cursor-pointer flex-shrink-0" 
+                  onClick={() => handleSelectItem(item.id)}
+                >
+                  <div className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all duration-300 ${selectedItems.has(item.id) ? 'bg-blue-600 text-white' : 'bg-slate-800/80 hover:bg-blue-600/50 text-white'}`}>
+                    {selectedItems.has(item.id) ? (
+                      <CheckSquare className="w-4 h-4" />
+                    ) : (
+                      <Square className="w-4 h-4" />
+                    )}
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
