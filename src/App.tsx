@@ -4,14 +4,12 @@ import { useSearch, usePlatforms, useTasks, useDownload } from './hooks/api';
 import { SearchBar } from './components/SearchBar';
 import { ResultsList } from './components/ResultsList';
 import TaskList from './components/TaskList';
-import { Music, Film, FileText, ChevronLeft, ChevronRight, Github, Zap, Database, Settings, Info, GripVertical } from 'lucide-react';
+import { Music, Film, FileText, ChevronLeft, ChevronRight, Github, Zap, Database, Settings, Info } from 'lucide-react';
 
 function App() {
   // 状态
   const { searchQuery, activeType, selectedPlatform, setSearchQuery, setActiveType, setSelectedPlatform } = useAppStore();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [sidebarWidth, setSidebarWidth] = useState(288); // 默认宽度18rem (288px)
-  const [isResizing, setIsResizing] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   
   // 响应式设计：根据屏幕宽度自动调整侧边栏
@@ -29,30 +27,6 @@ function App() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [sidebarCollapsed]);
-  
-  // 拖拽调整侧边栏宽度
-  const handleMouseDown = (_e: React.MouseEvent) => {
-    setIsResizing(true);
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-  };
-  
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!isResizing || !sidebarRef.current) return;
-    
-    const newWidth = e.clientX;
-    // 限制宽度范围：最小120px，最大400px
-    if (newWidth >= 120 && newWidth <= 400) {
-      setSidebarWidth(newWidth);
-      setSidebarCollapsed(false); // 拖拽时自动展开
-    }
-  };
-  
-  const handleMouseUp = () => {
-    setIsResizing(false);
-    document.removeEventListener('mousemove', handleMouseMove);
-    document.removeEventListener('mouseup', handleMouseUp);
-  };
   
   // API调用
   const { mutate: search, isPending: searchLoading } = useSearch();
@@ -93,51 +67,57 @@ function App() {
       {/* 左侧可收缩Sidebar */}
       <aside 
         ref={sidebarRef}
-        className={`bg-slate-900/95 backdrop-blur-md border-r border-slate-800 transition-all duration-500 ease-in-out flex flex-col shadow-2xl z-10 overflow-hidden`}
+        className={`bg-slate-900 border-r border-slate-800 transition-all duration-300 ease-in-out flex flex-col shadow-xl z-10 overflow-hidden`}
         style={{ 
-          width: sidebarCollapsed ? '4rem' : `${sidebarWidth}px`,
-          minWidth: '4rem',
-          maxWidth: '400px',
+          width: sidebarCollapsed ? '3.5rem' : '14rem',
+          minWidth: '3.5rem',
+          maxWidth: '14rem',
           flexShrink: 0
         }}
       >
         {/* Logo区域 */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-800">
-          {/* Logo和标题 */}
-          <div className={`flex items-center gap-3 transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
-            <Zap className="w-6 h-6 text-blue-500 animate-pulse" />
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-              XDownload
-            </h1>
-          </div>
-          
-          {/* 折叠按钮 - 确保始终可见可点击 */}
-          <button 
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="p-2 rounded-full bg-slate-800 hover:bg-slate-700 transition-all duration-300 hover:scale-110 flex-shrink-0 z-20"
-            style={{ minWidth: '32px', minHeight: '32px' }}
-          >
-            {sidebarCollapsed ? <ChevronRight className="w-5 h-5 text-blue-400" /> : <ChevronLeft className="w-5 h-5 text-blue-400" />}
-          </button>
+        <div className={`flex items-center justify-center ${sidebarCollapsed ? 'p-4' : 'p-4 border-b border-slate-800'}`}>
+          {!sidebarCollapsed ? (
+            <div className="flex items-center gap-3 w-full">
+              <Zap className="w-6 h-6 text-blue-500 animate-pulse" />
+              <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                XDownload
+              </h1>
+              <button 
+                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                className="ml-auto p-2 rounded-full bg-slate-800 hover:bg-slate-700 transition-all duration-200 hover:scale-105"
+              >
+                <ChevronLeft className="w-5 h-5 text-blue-400" />
+              </button>
+            </div>
+          ) : (
+            <button 
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              className="p-2 rounded-full bg-slate-800 hover:bg-slate-700 transition-all duration-200 hover:scale-105"
+            >
+              <ChevronRight className="w-5 h-5 text-blue-400" />
+            </button>
+          )}
         </div>
 
         {/* 导航菜单 */}
-        <nav className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-900">
-          {/* 主要导航 */}
-          <div className={`text-xs uppercase text-slate-500 mb-4 font-semibold px-3 transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
-            内容类型
-          </div>
+        <nav className="flex-1 p-2 space-y-1 overflow-y-auto scrollbar-hide">
+          {/* 主要导航标题 - 仅在展开时显示 */}
+          {!sidebarCollapsed && (
+            <div className="text-xs uppercase text-slate-500 mb-2 font-semibold px-3 mt-1">
+              内容类型
+            </div>
+          )}
           
           {/* 音乐选项 */}
           <button
             onClick={() => handleTypeChange('music')}
-            className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all duration-350 ${activeType === 'music' ? 'bg-gradient-to-r from-blue-600/30 to-blue-700/30 border border-blue-500/40 text-blue-400 shadow-lg shadow-blue-500/15' : 'hover:bg-slate-800/80 hover:border-slate-700/50 border border-transparent hover:shadow-lg hover:shadow-slate-700/10'}`}
+            className={`flex items-center justify-center gap-2 w-full p-2 rounded-lg transition-all duration-300 ${sidebarCollapsed ? 'justify-center' : 'justify-start'} ${activeType === 'music' ? 'bg-blue-600/20 text-blue-400' : 'hover:bg-slate-800'}`}
           >
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-350 relative overflow-hidden ${activeType === 'music' ? 'bg-gradient-to-br from-blue-500/30 to-blue-600/30 border border-blue-500/40 shadow-md shadow-blue-500/20' : 'bg-slate-800/90 border border-slate-700/30 hover:bg-slate-700/90'}`}>
-              <div className="absolute inset-0 bg-gradient-to-br from-transparent to-slate-900/50 opacity-80"></div>
-              <Music className={`w-6 h-6 relative z-10 transition-all duration-350 ${activeType === 'music' ? 'text-blue-400 animate-pulse' : 'text-slate-400 hover:text-blue-300'}`} />
+            <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 ${activeType === 'music' ? 'bg-blue-600/30 text-blue-400' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-blue-300'}`}>
+              <Music className="w-5 h-5" />
             </div>
-            <span className={`transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
+            <span className={`transition-all duration-300 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100 whitespace-nowrap'}`}>
               音乐
             </span>
           </button>
@@ -145,13 +125,12 @@ function App() {
           {/* 视频选项 */}
           <button
             onClick={() => handleTypeChange('video')}
-            className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all duration-350 ${activeType === 'video' ? 'bg-gradient-to-r from-blue-600/30 to-blue-700/30 border border-blue-500/40 text-blue-400 shadow-lg shadow-blue-500/15' : 'hover:bg-slate-800/80 hover:border-slate-700/50 border border-transparent hover:shadow-lg hover:shadow-slate-700/10'}`}
+            className={`flex items-center justify-center gap-2 w-full p-2 rounded-lg transition-all duration-300 ${sidebarCollapsed ? 'justify-center' : 'justify-start'} ${activeType === 'video' ? 'bg-blue-600/20 text-blue-400' : 'hover:bg-slate-800'}`}
           >
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-350 relative overflow-hidden ${activeType === 'video' ? 'bg-gradient-to-br from-blue-500/30 to-blue-600/30 border border-blue-500/40 shadow-md shadow-blue-500/20' : 'bg-slate-800/90 border border-slate-700/30 hover:bg-slate-700/90'}`}>
-              <div className="absolute inset-0 bg-gradient-to-br from-transparent to-slate-900/50 opacity-80"></div>
-              <Film className={`w-6 h-6 relative z-10 transition-all duration-350 ${activeType === 'video' ? 'text-blue-400 animate-pulse' : 'text-slate-400 hover:text-blue-300'}`} />
+            <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 ${activeType === 'video' ? 'bg-blue-600/30 text-blue-400' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-blue-300'}`}>
+              <Film className="w-5 h-5" />
             </div>
-            <span className={`transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
+            <span className={`transition-all duration-300 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100 whitespace-nowrap'}`}>
               视频
             </span>
           </button>
@@ -159,90 +138,78 @@ function App() {
           {/* 文件选项 */}
           <button
             onClick={() => handleTypeChange('file')}
-            className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all duration-350 ${activeType === 'file' ? 'bg-gradient-to-r from-blue-600/30 to-blue-700/30 border border-blue-500/40 text-blue-400 shadow-lg shadow-blue-500/15' : 'hover:bg-slate-800/80 hover:border-slate-700/50 border border-transparent hover:shadow-lg hover:shadow-slate-700/10'}`}
+            className={`flex items-center justify-center gap-2 w-full p-2 rounded-lg transition-all duration-300 ${sidebarCollapsed ? 'justify-center' : 'justify-start'} ${activeType === 'file' ? 'bg-blue-600/20 text-blue-400' : 'hover:bg-slate-800'}`}
           >
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-350 relative overflow-hidden ${activeType === 'file' ? 'bg-gradient-to-br from-blue-500/30 to-blue-600/30 border border-blue-500/40 shadow-md shadow-blue-500/20' : 'bg-slate-800/90 border border-slate-700/30 hover:bg-slate-700/90'}`}>
-              <div className="absolute inset-0 bg-gradient-to-br from-transparent to-slate-900/50 opacity-80"></div>
-              <FileText className={`w-6 h-6 relative z-10 transition-all duration-350 ${activeType === 'file' ? 'text-blue-400 animate-pulse' : 'text-slate-400 hover:text-blue-300'}`} />
+            <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 ${activeType === 'file' ? 'bg-blue-600/30 text-blue-400' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-blue-300'}`}>
+              <FileText className="w-5 h-5" />
             </div>
-            <span className={`transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
+            <span className={`transition-all duration-300 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100 whitespace-nowrap'}`}>
               文件
             </span>
           </button>
 
           {/* 分隔线 */}
-          <div className="h-px bg-gradient-to-r from-transparent via-slate-800 to-transparent my-5 opacity-70"></div>
+          <div className="h-px bg-slate-800 my-3 opacity-70"></div>
 
-          {/* 次级导航 */}
-          <div className={`text-xs uppercase text-slate-500 mb-4 font-semibold px-3 transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
-            系统
-          </div>
+          {/* 次级导航标题 - 仅在展开时显示 */}
+          {!sidebarCollapsed && (
+            <div className="text-xs uppercase text-slate-500 mb-2 font-semibold px-3">
+              系统
+            </div>
+          )}
 
           {/* 数据管理 */}
           <button
-            className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all duration-350 hover:bg-slate-800/80 hover:border-slate-700/50 border border-transparent hover:shadow-lg hover:shadow-slate-700/10`}
+            className={`flex items-center justify-center gap-2 w-full p-2 rounded-lg transition-all duration-300 ${sidebarCollapsed ? 'justify-center' : 'justify-start'} hover:bg-slate-800`}
           >
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-350 relative overflow-hidden bg-slate-800/90 border border-slate-700/30 hover:bg-slate-700/90">
-              <div className="absolute inset-0 bg-gradient-to-br from-transparent to-slate-900/50 opacity-80"></div>
-              <Database className="w-6 h-6 relative z-10 text-slate-400 hover:text-blue-300 transition-colors" />
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-blue-300">
+              <Database className="w-5 h-5" />
             </div>
-            <span className={`transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
+            <span className={`transition-all duration-300 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100 whitespace-nowrap'}`}>
               数据管理
             </span>
           </button>
 
           {/* 设置 */}
           <button
-            className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all duration-350 hover:bg-slate-800/80 hover:border-slate-700/50 border border-transparent hover:shadow-lg hover:shadow-slate-700/10`}
+            className={`flex items-center justify-center gap-2 w-full p-2 rounded-lg transition-all duration-300 ${sidebarCollapsed ? 'justify-center' : 'justify-start'} hover:bg-slate-800`}
           >
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-350 relative overflow-hidden bg-slate-800/90 border border-slate-700/30 hover:bg-slate-700/90">
-              <div className="absolute inset-0 bg-gradient-to-br from-transparent to-slate-900/50 opacity-80"></div>
-              <Settings className="w-6 h-6 relative z-10 text-slate-400 hover:text-blue-300 transition-colors" />
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-blue-300">
+              <Settings className="w-5 h-5" />
             </div>
-            <span className={`transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
+            <span className={`transition-all duration-300 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100 whitespace-nowrap'}`}>
               设置
             </span>
           </button>
 
           {/* 关于 */}
           <button
-            className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all duration-350 hover:bg-slate-800/80 hover:border-slate-700/50 border border-transparent hover:shadow-lg hover:shadow-slate-700/10`}
+            className={`flex items-center justify-center gap-2 w-full p-2 rounded-lg transition-all duration-300 ${sidebarCollapsed ? 'justify-center' : 'justify-start'} hover:bg-slate-800`}
           >
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-350 relative overflow-hidden bg-slate-800/90 border border-slate-700/30 hover:bg-slate-700/90">
-              <div className="absolute inset-0 bg-gradient-to-br from-transparent to-slate-900/50 opacity-80"></div>
-              <Info className="w-6 h-6 relative z-10 text-slate-400 hover:text-blue-300 transition-colors" />
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-blue-300">
+              <Info className="w-5 h-5" />
             </div>
-            <span className={`transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
+            <span className={`transition-all duration-300 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100 whitespace-nowrap'}`}>
               关于
             </span>
           </button>
         </nav>
 
-        {/* Github地址 - 左下角 */}
-        <div className="p-4 border-t border-slate-800/80 bg-slate-900/90 flex justify-center">
+        {/* Github地址 */}
+        <div className="p-2 border-t border-slate-800">
           <a 
             href="https://github.com" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="flex items-center gap-3 justify-center p-3 rounded-xl transition-all duration-350 bg-slate-800/90 border border-slate-700/30 hover:bg-slate-700/90 hover:border-blue-500/40 hover:shadow-lg hover:shadow-blue-500/15 w-full"
+            className={`flex items-center justify-center gap-2 w-full p-2 rounded-lg transition-all duration-300 ${sidebarCollapsed ? 'justify-center' : 'justify-start'} bg-slate-800 hover:bg-slate-700`}
           >
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-350 relative overflow-hidden bg-slate-800/90 border border-slate-700/30 hover:bg-gradient-to-br from-blue-500/20 to-purple-500/20 hover:border-blue-500/40">
-              <div className="absolute inset-0 bg-gradient-to-br from-transparent to-slate-900/50 opacity-80"></div>
-              <Github className="w-6 h-6 relative z-10 text-slate-400 hover:text-blue-300 transition-colors" />
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 bg-slate-900 text-slate-400 hover:text-blue-300">
+              <Github className="w-5 h-5" />
             </div>
-            <span className={`text-sm font-medium text-slate-400 hover:text-blue-300 transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
+            <span className={`text-sm font-medium transition-all duration-300 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100 whitespace-nowrap'}`}>
               GitHub
             </span>
           </a>
-        </div>
-        
-        {/* 侧边栏调整大小手柄 */}
-        <div 
-          className="absolute top-0 right-0 h-full w-2 cursor-col-resize bg-slate-800/50 hover:bg-blue-500/30 transition-all duration-200 z-20 flex items-center justify-center"
-          onMouseDown={handleMouseDown}
-          style={{ opacity: sidebarCollapsed ? 0 : 1 }}
-        >
-          <GripVertical className="w-2 h-8 text-slate-600 hover:text-blue-400 transition-colors" />
         </div>
       </aside>
 
