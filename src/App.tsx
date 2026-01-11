@@ -49,39 +49,43 @@ function App() {
     <div className="flex h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 overflow-hidden">
       {/* 左侧可收缩Sidebar */}
       <aside 
-        className={`bg-slate-900/95 backdrop-blur-md border-r border-slate-800 transition-all duration-500 ease-in-out ${sidebarCollapsed ? 'w-20' : 'w-72'} flex flex-col shadow-2xl z-10`}
+        className={`bg-slate-900/95 backdrop-blur-md border-r border-slate-800 transition-all duration-500 ease-in-out ${sidebarCollapsed ? 'w-16' : 'w-72'} flex flex-col shadow-2xl z-10 overflow-hidden`}
       >
         {/* Logo区域 */}
-        <div className="flex items-center justify-between p-5 border-b border-slate-800">
+        <div className="flex items-center justify-between p-4 border-b border-slate-800">
+          {/* Logo和标题 */}
           <div className={`flex items-center gap-3 transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
             <Zap className="w-6 h-6 text-blue-500 animate-pulse" />
             <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
               XDownload
             </h1>
           </div>
+          
+          {/* 折叠按钮 - 确保始终可见可点击 */}
           <button 
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="p-2 rounded-full bg-slate-800 hover:bg-slate-700 transition-all duration-300 hover:scale-110"
-            style={{ minWidth: '36px', minHeight: '36px' }}
+            className="p-2 rounded-full bg-slate-800 hover:bg-slate-700 transition-all duration-300 hover:scale-110 flex-shrink-0 z-20"
+            style={{ minWidth: '32px', minHeight: '32px' }}
           >
             {sidebarCollapsed ? <Menu className="w-5 h-5 text-blue-400" /> : <X className="w-5 h-5 text-blue-400" />}
           </button>
         </div>
 
         {/* 导航菜单 */}
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-900">
+        <nav className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-900">
           {/* 主要导航 */}
-          <div className={`text-xs uppercase text-slate-500 mb-3 font-semibold px-3 transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
+          <div className={`text-xs uppercase text-slate-500 mb-4 font-semibold px-3 transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
             内容类型
           </div>
           
           {/* 音乐选项 */}
           <button
             onClick={() => handleTypeChange('music')}
-            className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all duration-300 ${activeType === 'music' ? 'bg-gradient-to-r from-blue-600/20 to-blue-700/20 border border-blue-500/30 text-blue-400' : 'hover:bg-slate-800/80 border border-transparent'}`}
+            className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all duration-350 ${activeType === 'music' ? 'bg-gradient-to-r from-blue-600/30 to-blue-700/30 border border-blue-500/40 text-blue-400 shadow-lg shadow-blue-500/15' : 'hover:bg-slate-800/80 hover:border-slate-700/50 border border-transparent hover:shadow-lg hover:shadow-slate-700/10'}`}
           >
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${activeType === 'music' ? 'bg-blue-500/20' : 'bg-slate-800'}`}>
-              <Music className="w-5 h-5" />
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-350 relative overflow-hidden ${activeType === 'music' ? 'bg-gradient-to-br from-blue-500/30 to-blue-600/30 border border-blue-500/40 shadow-md shadow-blue-500/20' : 'bg-slate-800/90 border border-slate-700/30 hover:bg-slate-700/90'}`}>
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent to-slate-900/50 opacity-80"></div>
+              <Music className={`w-6 h-6 relative z-10 transition-all duration-350 ${activeType === 'music' ? 'text-blue-400 animate-pulse' : 'text-slate-400 hover:text-blue-300'}`} />
             </div>
             <span className={`transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
               音乐
@@ -91,10 +95,11 @@ function App() {
           {/* 视频选项 */}
           <button
             onClick={() => handleTypeChange('video')}
-            className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all duration-300 ${activeType === 'video' ? 'bg-gradient-to-r from-blue-600/20 to-blue-700/20 border border-blue-500/30 text-blue-400' : 'hover:bg-slate-800/80 border border-transparent'}`}
+            className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all duration-350 ${activeType === 'video' ? 'bg-gradient-to-r from-blue-600/30 to-blue-700/30 border border-blue-500/40 text-blue-400 shadow-lg shadow-blue-500/15' : 'hover:bg-slate-800/80 hover:border-slate-700/50 border border-transparent hover:shadow-lg hover:shadow-slate-700/10'}`}
           >
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${activeType === 'video' ? 'bg-blue-500/20' : 'bg-slate-800'}`}>
-              <Film className="w-5 h-5" />
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-350 relative overflow-hidden ${activeType === 'video' ? 'bg-gradient-to-br from-blue-500/30 to-blue-600/30 border border-blue-500/40 shadow-md shadow-blue-500/20' : 'bg-slate-800/90 border border-slate-700/30 hover:bg-slate-700/90'}`}>
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent to-slate-900/50 opacity-80"></div>
+              <Film className={`w-6 h-6 relative z-10 transition-all duration-350 ${activeType === 'video' ? 'text-blue-400 animate-pulse' : 'text-slate-400 hover:text-blue-300'}`} />
             </div>
             <span className={`transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
               视频
@@ -104,10 +109,11 @@ function App() {
           {/* 文件选项 */}
           <button
             onClick={() => handleTypeChange('file')}
-            className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all duration-300 ${activeType === 'file' ? 'bg-gradient-to-r from-blue-600/20 to-blue-700/20 border border-blue-500/30 text-blue-400' : 'hover:bg-slate-800/80 border border-transparent'}`}
+            className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all duration-350 ${activeType === 'file' ? 'bg-gradient-to-r from-blue-600/30 to-blue-700/30 border border-blue-500/40 text-blue-400 shadow-lg shadow-blue-500/15' : 'hover:bg-slate-800/80 hover:border-slate-700/50 border border-transparent hover:shadow-lg hover:shadow-slate-700/10'}`}
           >
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${activeType === 'file' ? 'bg-blue-500/20' : 'bg-slate-800'}`}>
-              <FileText className="w-5 h-5" />
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-350 relative overflow-hidden ${activeType === 'file' ? 'bg-gradient-to-br from-blue-500/30 to-blue-600/30 border border-blue-500/40 shadow-md shadow-blue-500/20' : 'bg-slate-800/90 border border-slate-700/30 hover:bg-slate-700/90'}`}>
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent to-slate-900/50 opacity-80"></div>
+              <FileText className={`w-6 h-6 relative z-10 transition-all duration-350 ${activeType === 'file' ? 'text-blue-400 animate-pulse' : 'text-slate-400 hover:text-blue-300'}`} />
             </div>
             <span className={`transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
               文件
@@ -115,19 +121,20 @@ function App() {
           </button>
 
           {/* 分隔线 */}
-          <div className="h-px bg-slate-800 my-4 opacity-50"></div>
+          <div className="h-px bg-gradient-to-r from-transparent via-slate-800 to-transparent my-5 opacity-70"></div>
 
           {/* 次级导航 */}
-          <div className={`text-xs uppercase text-slate-500 mb-3 font-semibold px-3 transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
+          <div className={`text-xs uppercase text-slate-500 mb-4 font-semibold px-3 transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
             系统
           </div>
 
           {/* 数据管理 */}
           <button
-            className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all duration-300 hover:bg-slate-800/80 border border-transparent`}
+            className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all duration-350 hover:bg-slate-800/80 hover:border-slate-700/50 border border-transparent hover:shadow-lg hover:shadow-slate-700/10`}
           >
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-slate-800">
-              <Database className="w-5 h-5 text-slate-400" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-350 relative overflow-hidden bg-slate-800/90 border border-slate-700/30 hover:bg-slate-700/90">
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent to-slate-900/50 opacity-80"></div>
+              <Database className="w-6 h-6 relative z-10 text-slate-400 hover:text-blue-300 transition-colors" />
             </div>
             <span className={`transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
               数据管理
@@ -136,10 +143,11 @@ function App() {
 
           {/* 设置 */}
           <button
-            className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all duration-300 hover:bg-slate-800/80 border border-transparent`}
+            className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all duration-350 hover:bg-slate-800/80 hover:border-slate-700/50 border border-transparent hover:shadow-lg hover:shadow-slate-700/10`}
           >
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-slate-800">
-              <Settings className="w-5 h-5 text-slate-400" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-350 relative overflow-hidden bg-slate-800/90 border border-slate-700/30 hover:bg-slate-700/90">
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent to-slate-900/50 opacity-80"></div>
+              <Settings className="w-6 h-6 relative z-10 text-slate-400 hover:text-blue-300 transition-colors" />
             </div>
             <span className={`transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
               设置
@@ -148,10 +156,11 @@ function App() {
 
           {/* 关于 */}
           <button
-            className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all duration-300 hover:bg-slate-800/80 border border-transparent`}
+            className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all duration-350 hover:bg-slate-800/80 hover:border-slate-700/50 border border-transparent hover:shadow-lg hover:shadow-slate-700/10`}
           >
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-slate-800">
-              <Info className="w-5 h-5 text-slate-400" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-350 relative overflow-hidden bg-slate-800/90 border border-slate-700/30 hover:bg-slate-700/90">
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent to-slate-900/50 opacity-80"></div>
+              <Info className="w-6 h-6 relative z-10 text-slate-400 hover:text-blue-300 transition-colors" />
             </div>
             <span className={`transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
               关于
@@ -160,15 +169,18 @@ function App() {
         </nav>
 
         {/* Github地址 - 左下角 */}
-        <div className="p-5 border-t border-slate-800 bg-slate-900/80">
+        <div className="p-4 border-t border-slate-800/80 bg-slate-900/90 flex justify-center">
           <a 
             href="https://github.com" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="flex items-center gap-3 justify-center p-3 rounded-xl bg-slate-800 hover:bg-slate-700 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20"
+            className="flex items-center gap-3 justify-center p-3 rounded-xl transition-all duration-350 bg-slate-800/90 border border-slate-700/30 hover:bg-slate-700/90 hover:border-blue-500/40 hover:shadow-lg hover:shadow-blue-500/15 w-full"
           >
-            <Github className="w-5 h-5 text-slate-400 group-hover:text-blue-400 transition-colors" />
-            <span className={`text-sm font-medium text-slate-400 group-hover:text-blue-400 transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-350 relative overflow-hidden bg-slate-800/90 border border-slate-700/30 hover:bg-gradient-to-br from-blue-500/20 to-purple-500/20 hover:border-blue-500/40">
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent to-slate-900/50 opacity-80"></div>
+              <Github className="w-6 h-6 relative z-10 text-slate-400 hover:text-blue-300 transition-colors" />
+            </div>
+            <span className={`text-sm font-medium text-slate-400 hover:text-blue-300 transition-all duration-500 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
               GitHub
             </span>
           </a>

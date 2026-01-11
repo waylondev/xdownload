@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader } from "./ui/card";
-import { Download, Play, Pause, Trash2, Clock, File, DownloadCloud, CheckCircle2, AlertCircle, Clock3, X, RotateCcw } from "lucide-react";
+import { Download, Play, Pause, Trash2, Clock, File, DownloadCloud, CheckCircle2, AlertCircle, X, RotateCcw } from "lucide-react";
 import { IpcDownloadService } from "../services/IpcDownloadService";
 
 // 下载任务类型定义
@@ -130,204 +130,130 @@ const TaskList = ({ tasks, onTaskUpdate, onTaskDelete, className }: TaskListProp
           )}
         </div>
       </CardHeader>
-      <CardContent className="p-4 bg-slate-900/80">
-        <div className="space-y-4">
-          {tasks.length === 0 ? (
-            <div className="text-center py-20 text-slate-400">
-              <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center shadow-2xl">
-                <File className="w-12 h-12 text-slate-600" />
-              </div>
-              <h3 className="text-2xl font-bold text-slate-300 mb-3">暂无下载任务</h3>
-              <p className="text-lg text-slate-500">搜索并下载内容后将显示在这里</p>
-              <p className="text-sm text-slate-600 mt-2">支持音乐、视频、文件下载</p>
+      <CardContent className="p-0 bg-slate-900/80">
+        {tasks.length === 0 ? (
+          <div className="text-center py-20 text-slate-400">
+            <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center shadow-2xl">
+              <File className="w-12 h-12 text-slate-600" />
             </div>
-          ) : (
-            tasks.map((task) => {
-              const statusDisplay = getStatusDisplay(task.status as any);
-              return (
-                <div 
-                  key={task.id} 
-                  className="bg-slate-800/80 backdrop-blur-sm border border-slate-700 rounded-xl overflow-hidden hover:border-blue-500/30 transition-all duration-500 shadow-lg hover:shadow-blue-500/10"
-                >
-                  {/* 任务卡片装饰 */}
-                  {task.status === "downloading" && (
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-pulse"></div>
-                  )}
-                  
-                  <div className="p-5">
-                    {/* 任务头部 */}
-                    <div className="flex flex-col md:flex-row gap-5">
-                      {/* 任务信息 */}
-                      <div className="flex-1 min-w-0">
-                        {/* 文件名和平台 */}
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-3">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center shadow-lg">
-                              <File className="w-6 h-6 text-slate-400" />
-                            </div>
-                            <h3 className="font-semibold text-lg text-slate-100 truncate group-hover:text-blue-400 transition-colors duration-300">
-                              {task.filename}
-                            </h3>
-                          </div>
-                          
-                          {/* 状态标签 */}
-                          <div className="flex items-center gap-3">
-                            <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full ${statusDisplay.bgColor} ${statusDisplay.color} text-sm font-medium`}>
-                              {statusDisplay.icon}
-                              <span>{statusDisplay.text}</span>
-                            </div>
-                          </div>
+            <h3 className="text-2xl font-bold text-slate-300 mb-3">暂无下载任务</h3>
+            <p className="text-lg text-slate-500">搜索并下载内容后将显示在这里</p>
+            <p className="text-sm text-slate-600 mt-2">支持音乐、视频、文件下载</p>
+          </div>
+        ) : (
+          /* 移除overflow-x-auto，使用响应式表格设计 */
+          <table className="w-full table-auto">
+            <thead>
+              <tr className="bg-slate-900/90 border-b border-slate-800">
+                <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400 whitespace-nowrap">文件名</th>
+                <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400 whitespace-nowrap">平台</th>
+                <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400 whitespace-nowrap">状态</th>
+                <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400 whitespace-nowrap">进度</th>
+                <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400 whitespace-nowrap hidden sm:table-cell">大小</th>
+                <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400 whitespace-nowrap hidden md:table-cell">速度</th>
+                <th className="px-3 py-2 text-right text-xs font-semibold text-slate-400 whitespace-nowrap">操作</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-800">
+              {tasks.map((task) => {
+                const statusDisplay = getStatusDisplay(task.status as any);
+                return (
+                  <tr key={task.id} className="hover:bg-slate-800/30 transition-colors duration-200">
+                    {/* 文件名 */}
+                    <td className="px-3 py-3">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-6 h-6 rounded-md flex items-center justify-center ${statusDisplay.bgColor}`}>
+                          {statusDisplay.icon}
                         </div>
-                        
-                        {/* URL */}
-                        <p className="text-xs text-slate-500 truncate mb-4">
-                          {task.url}
-                        </p>
-                        
-                        {/* 进度条 */}
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-slate-400">下载进度</span>
-                            <div className="flex items-center gap-4">
-                              <span className="font-mono font-semibold text-blue-400">{task.progress}%</span>
-                              {task.status === "downloading" && task.speed && (
-                                <span className="text-slate-500 flex items-center gap-1">
-                                  <DownloadCloud className="w-3.5 h-3.5" />
-                                  {task.speed}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          
-                          {/* 现代化进度条 */}
-                          <div className="relative h-3 rounded-full bg-slate-800 overflow-hidden shadow-inner">
-                            {/* 背景渐变 */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-slate-700 to-slate-900"></div>
-                            
-                            {/* 进度填充 */}
-                            <div 
-                              className="absolute left-0 top-0 h-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 transition-all duration-300 ease-out"
-                              style={{ width: `${task.progress}%` }}
-                            >
-                              {/* 发光效果 */}
-                              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
-                            </div>
-                            
-                            {/* 进度指示器 */}
-                            {task.progress > 0 && (
-                              <div 
-                                className="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 rounded-full bg-white shadow-lg shadow-blue-500/50 animate-pulse"
-                                style={{
-                                  left: `calc(${task.progress}% - 8px)`,
-                                }}
-                              ></div>
-                            )}
-                          </div>
-                        </div>
-                        
-                        {/* 下载统计 */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
-                          {/* 文件大小 */}
-                          <div className="flex items-center gap-2 text-sm text-slate-500">
-                            <File className="w-4 h-4" />
-                            <div>
-                              <div className="text-xs text-slate-600">文件大小</div>
-                              <div className="text-slate-300">
-                                {task.downloaded || '0 B'} / {task.size || '未知'}
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* 速度和ETA */}
-                          {task.status === "downloading" && (
-                            <>
-                              <div className="flex items-center gap-2 text-sm text-slate-500">
-                                <DownloadCloud className="w-4 h-4" />
-                                <div>
-                                  <div className="text-xs text-slate-600">下载速度</div>
-                                  <div className="text-slate-300">{task.speed || '0 B/s'}</div>
-                                </div>
-                              </div>
-                              {task.eta && (
-                                <div className="flex items-center gap-2 text-sm text-slate-500">
-                                  <Clock className="w-4 h-4" />
-                                  <div>
-                                    <div className="text-xs text-slate-600">剩余时间</div>
-                                    <div className="text-slate-300">{task.eta}</div>
-                                  </div>
-                                </div>
-                              )}
-                            </>
-                          )}
-                          
-                          {/* 平台信息 */}
-                          <div className="flex items-center gap-2 text-sm text-slate-500">
-                            <div className="w-4 h-4 rounded-full bg-slate-700 flex items-center justify-center">
-                              <span className="text-xs font-bold text-slate-400">{task.platform.charAt(0)}</span>
-                            </div>
-                            <div>
-                              <div className="text-xs text-slate-600">来源平台</div>
-                              <div className="text-slate-300">{task.platform}</div>
-                            </div>
-                          </div>
-                          
-                          {/* 任务时间 */}
-                          {task.updatedAt && (
-                            <div className="flex items-center gap-2 text-sm text-slate-500">
-                              <Clock3 className="w-4 h-4" />
-                              <div>
-                                <div className="text-xs text-slate-600">更新时间</div>
-                                <div className="text-slate-300">
-                                  {new Date(task.updatedAt).toLocaleString()}
-                                </div>
-                              </div>
-                            </div>
-                          )}
+                        <div className="min-w-0 max-w-[150px] sm:max-w-[250px]">
+                          <h3 className="font-semibold text-slate-100 text-xs truncate">
+                            {task.filename}
+                          </h3>
+                          <p className="text-xs text-slate-500 truncate hidden sm:block">
+                            {task.url}
+                          </p>
                         </div>
                       </div>
-                      
-                      {/* 操作按钮 */}
-                      <div className="flex flex-col gap-3 justify-center">
-                        {/* 控制按钮 */}
+                    </td>
+                    
+                    {/* 平台 */}
+                    <td className="px-3 py-3">
+                      <span className="text-xs px-2 py-0.5 bg-slate-800 rounded-full text-slate-300 whitespace-nowrap">
+                        {task.platform}
+                      </span>
+                    </td>
+                    
+                    {/* 状态 */}
+                    <td className="px-3 py-3">
+                      <span className={`text-xs font-medium ${statusDisplay.color} whitespace-nowrap`}>
+                        {statusDisplay.text}
+                      </span>
+                    </td>
+                    
+                    {/* 进度 */}
+                    <td className="px-3 py-3 min-w-[120px]">
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between text-[10px]">
+                          <span className="text-slate-400 whitespace-nowrap">{task.progress}%</span>
+                        </div>
+                        {/* 优化的进度条 */}
+                        <div className="relative h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                          <div 
+                            className="absolute left-0 top-0 h-full bg-gradient-to-r from-blue-600 to-purple-600 transition-all duration-300 ease-out"
+                            style={{ width: `${task.progress}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    </td>
+                    
+                    {/* 大小 - 在小屏幕上隐藏 */}
+                    <td className="px-3 py-3 hidden sm:table-cell">
+                      <span className="text-xs text-slate-300 whitespace-nowrap">
+                        {task.downloaded || '0 B'} / {task.size || '未知'}
+                      </span>
+                    </td>
+                    
+                    {/* 速度 - 在中等屏幕以下隐藏 */}
+                    <td className="px-3 py-3 hidden md:table-cell">
+                      <span className="text-xs text-slate-300 whitespace-nowrap">
+                        {task.status === "downloading" && task.speed ? task.speed : '-'}  
+                      </span>
+                    </td>
+                    
+                    {/* 操作按钮 - 紧凑设计 */}
+                    <td className="px-3 py-3 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        {/* 控制按钮 - 图标化设计 */}
                         {(task.status === "downloading" || task.status === "paused" || task.status === "pending") && (
                           <Button
                             variant="default"
-                            size="sm"
+                            size="icon"
                             onClick={() => handleToggleTaskStatus(task.id)}
-                            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 rounded-lg px-6 py-2.5 transition-all duration-300 shadow-lg hover:shadow-blue-500/30 hover:scale-105"
+                            className="h-7 w-7 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 rounded-md transition-all duration-300"
+                            title={task.status === "downloading" ? '暂停' : '开始'}
                           >
-                            <div className="flex items-center gap-2">
-                              {task.status === "downloading" ? 
-                                <Pause className="w-4 h-4" /> : 
-                                <Play className="w-4 h-4" />
-                              }
-                              <span className="font-semibold">
-                                {task.status === "downloading" ? '暂停' : '开始'}
-                              </span>
-                            </div>
+                            {task.status === "downloading" ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
                           </Button>
                         )}
                         
-                        {/* 删除按钮 */}
+                        {/* 删除按钮 - 图标化设计 */}
                         <Button
                           variant="ghost"
-                          size="sm"
-                          className="bg-slate-800/80 hover:bg-red-500/20 text-slate-300 hover:text-red-400 border border-slate-700 hover:border-red-500/50 rounded-lg px-6 py-2.5 transition-all duration-300"
+                          size="icon"
+                          className="h-7 w-7 bg-slate-800 hover:bg-red-500/20 text-slate-300 hover:text-red-400 border border-slate-700 hover:border-red-500/50 rounded-md transition-all duration-300"
                           onClick={() => handleDeleteTask(task.id)}
+                          title="删除"
                         >
-                          <div className="flex items-center gap-2">
-                            <Trash2 className="w-4 h-4" />
-                            <span className="font-semibold">删除</span>
-                          </div>
+                          <Trash2 className="h-3 w-3" />
                         </Button>
                       </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
       </CardContent>
     </Card>
   );
