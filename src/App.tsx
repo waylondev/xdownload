@@ -69,8 +69,8 @@ function App() {
         ref={sidebarRef}
         className={`bg-slate-900 border-r border-slate-800 transition-all duration-300 ease-in-out flex flex-col shadow-xl z-10 overflow-hidden`}
         style={{ 
-          width: sidebarCollapsed ? '3.5rem' : '14rem',
-          minWidth: '3.5rem',
+          width: sidebarCollapsed ? '4rem' : '14rem',
+          minWidth: '4rem',
           maxWidth: '14rem',
           flexShrink: 0
         }}
@@ -114,7 +114,7 @@ function App() {
             onClick={() => handleTypeChange('music')}
             className={`flex items-center justify-center gap-2 w-full p-2 rounded-lg transition-all duration-300 ${sidebarCollapsed ? 'justify-center' : 'justify-start'} ${activeType === 'music' ? 'bg-blue-600/20 text-blue-400' : 'hover:bg-slate-800'}`}
           >
-            <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 ${activeType === 'music' ? 'bg-blue-600/30 text-blue-400' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-blue-300'}`}>
+            <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 ${activeType === 'music' ? 'bg-blue-600/30 text-blue-400' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-blue-300'}`}>
               <Music className="w-5 h-5" />
             </div>
             <span className={`transition-all duration-300 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100 whitespace-nowrap'}`}>
@@ -127,7 +127,7 @@ function App() {
             onClick={() => handleTypeChange('video')}
             className={`flex items-center justify-center gap-2 w-full p-2 rounded-lg transition-all duration-300 ${sidebarCollapsed ? 'justify-center' : 'justify-start'} ${activeType === 'video' ? 'bg-blue-600/20 text-blue-400' : 'hover:bg-slate-800'}`}
           >
-            <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 ${activeType === 'video' ? 'bg-blue-600/30 text-blue-400' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-blue-300'}`}>
+            <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 ${activeType === 'video' ? 'bg-blue-600/30 text-blue-400' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-blue-300'}`}>
               <Film className="w-5 h-5" />
             </div>
             <span className={`transition-all duration-300 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100 whitespace-nowrap'}`}>
@@ -140,7 +140,7 @@ function App() {
             onClick={() => handleTypeChange('file')}
             className={`flex items-center justify-center gap-2 w-full p-2 rounded-lg transition-all duration-300 ${sidebarCollapsed ? 'justify-center' : 'justify-start'} ${activeType === 'file' ? 'bg-blue-600/20 text-blue-400' : 'hover:bg-slate-800'}`}
           >
-            <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 ${activeType === 'file' ? 'bg-blue-600/30 text-blue-400' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-blue-300'}`}>
+            <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 ${activeType === 'file' ? 'bg-blue-600/30 text-blue-400' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-blue-300'}`}>
               <FileText className="w-5 h-5" />
             </div>
             <span className={`transition-all duration-300 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100 whitespace-nowrap'}`}>
@@ -162,7 +162,7 @@ function App() {
           <button
             className={`flex items-center justify-center gap-2 w-full p-2 rounded-lg transition-all duration-300 ${sidebarCollapsed ? 'justify-center' : 'justify-start'} hover:bg-slate-800`}
           >
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-blue-300">
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-blue-300">
               <Database className="w-5 h-5" />
             </div>
             <span className={`transition-all duration-300 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100 whitespace-nowrap'}`}>
@@ -174,7 +174,7 @@ function App() {
           <button
             className={`flex items-center justify-center gap-2 w-full p-2 rounded-lg transition-all duration-300 ${sidebarCollapsed ? 'justify-center' : 'justify-start'} hover:bg-slate-800`}
           >
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-blue-300">
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-blue-300">
               <Settings className="w-5 h-5" />
             </div>
             <span className={`transition-all duration-300 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100 whitespace-nowrap'}`}>
@@ -186,7 +186,7 @@ function App() {
           <button
             className={`flex items-center justify-center gap-2 w-full p-2 rounded-lg transition-all duration-300 ${sidebarCollapsed ? 'justify-center' : 'justify-start'} hover:bg-slate-800`}
           >
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-blue-300">
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-blue-300">
               <Info className="w-5 h-5" />
             </div>
             <span className={`transition-all duration-300 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100 whitespace-nowrap'}`}>
@@ -203,7 +203,7 @@ function App() {
             rel="noopener noreferrer"
             className={`flex items-center justify-center gap-2 w-full p-2 rounded-lg transition-all duration-300 ${sidebarCollapsed ? 'justify-center' : 'justify-start'} bg-slate-800 hover:bg-slate-700`}
           >
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 bg-slate-900 text-slate-400 hover:text-blue-300">
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 bg-slate-900 text-slate-400 hover:text-blue-300">
               <Github className="w-5 h-5" />
             </div>
             <span className={`text-sm font-medium transition-all duration-300 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100 whitespace-nowrap'}`}>
