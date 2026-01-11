@@ -4,6 +4,11 @@
 
 XDownload 是一款基于 Rust + Tauri 开发的跨平台下载工具，支持音乐、视频等多种媒体类型的下载，具有高性能、低资源占用的特点。
 
+## Demo
+
+![home.png](assets/home.png)
+
+
 ## 技术栈
 
 ### 后端（Rust）
