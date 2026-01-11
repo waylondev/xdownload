@@ -30,7 +30,7 @@ function App() {
   
   // API调用
   const { mutate: search, isPending: searchLoading } = useSearch();
-  const { data: platforms = [] } = usePlatforms();
+  const { data: platforms = [] } = usePlatforms(activeType);
   const { data: tasks = [] } = useTasks(activeType);
   const { mutate: download } = useDownload();
 
@@ -158,7 +158,7 @@ function App() {
             </div>
           )}
 
-          {/* 数据管理 */}
+          {/* 数据 */}
           <button
             className={`flex items-center justify-center gap-2 w-full p-2 rounded-lg transition-all duration-300 ${sidebarCollapsed ? 'justify-center' : 'justify-start'} hover:bg-slate-800`}
           >
@@ -166,7 +166,7 @@ function App() {
               <Database className="w-5 h-5" />
             </div>
             <span className={`transition-all duration-300 ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100 whitespace-nowrap'}`}>
-              数据管理
+            
             </span>
           </button>
 

@@ -38,15 +38,36 @@ export const useSearch = () => {
     onSuccess: (data) => {
       // 将搜索结果保存到React Query缓存中
       queryClient.setQueryData(['search'], data);
+      // 通知React Query刷新依赖于该缓存的组件
+      queryClient.invalidateQueries({ queryKey: ['search'] });
     }
   });
 };
 
 // 获取平台列表
-export const usePlatforms = () => {
+export const usePlatforms = (fileType?: 'music' | 'video' | 'file') => {
   return useQuery({
-    queryKey: ['platforms'],
-    queryFn: () => searchService.getAllPlatforms(),
+    queryKey: ['platforms', fileType],
+    queryFn: async () => {
+      const allPlatforms = await searchService.getAllPlatforms();
+      if (!fileType) {
+        return allPlatforms;
+      }
+      
+      // 根据文件类型过滤平台
+      const mapFileTypeToBackend = (type: 'music' | 'video' | 'file') => {
+        switch (type) {
+          case 'music': return 'audio';
+          case 'video': return 'video';
+          case 'file': return 'document';
+        }
+      };
+      
+      const backendType = mapFileTypeToBackend(fileType);
+      return allPlatforms.filter(platform => {
+        return platform.supportedFileTypes.includes(backendType);
+      });
+    },
     staleTime: 10 * 60 * 1000, // 10分钟
   });
 };

@@ -2,6 +2,7 @@
 use tokio::sync::Mutex;
 
 mod modules;
+mod utils;
 
 // 导入简化的垂直模块API
 use modules::download::api::{cancel_download, create_download_service, get_download_task, get_download_tasks, pause_download, resume_download, start_download};

@@ -1,9 +1,9 @@
 // Bilibili搜索服务实现
 use crate::modules::platforms::{SearchService, PlatformSearchItem};
+use crate::utils::time::{format_duration_seconds, format_unix_timestamp};
 use async_trait::async_trait;
 use reqwest::Client;
 use serde_json::json;
-use time::OffsetDateTime;
 
 /// Bilibili搜索服务
 pub struct BilibiliSearchService {
@@ -15,19 +15,6 @@ impl BilibiliSearchService {
     pub fn new() -> Self {
         Self {
             client: Client::new(),
-        }
-    }
-    
-    /// 格式化时长
-    fn format_duration(&self, seconds: i32) -> String {
-        let hours = seconds / 3600;
-        let minutes = (seconds % 3600) / 60;
-        let secs = seconds % 60;
-        
-        if hours > 0 {
-            format!("{:02}:{:02}:{:02}", hours, minutes, secs)
-        } else {
-            format!("{:02}:{:02}", minutes, secs)
         }
     }
 }
@@ -99,20 +86,11 @@ impl SearchService for BilibiliSearchService {
                                                 platform: "bilibili".to_string(),
                                                 file_type: "video".to_string(),
                                                 size: None,
-                                                duration: Some(self.format_duration(duration)),
+                                                duration: Some(format_duration_seconds(duration)),
                                                 thumbnail: Some(pic),
                                                 description: None,
                                                 uploader: Some(author),
-                                                upload_date: Some(
-                                                    OffsetDateTime::from_unix_timestamp(pubdate)
-                                                        .unwrap()
-                                                        .format(&time::format_description::well_known::Rfc3339)
-                                                        .unwrap_or("1970-01-01T00:00:00Z".to_string())
-                                                        .split("T")
-                                                        .next()
-                                                        .unwrap_or("1970-01-01")
-                                                        .to_string()
-                                                ),
+                                                upload_date: Some(format_unix_timestamp(pubdate)),
                                                 quality: None,
                                                 format: None,
                                                 metadata: Some(json!({"play": play, "danmaku": danmaku})),
