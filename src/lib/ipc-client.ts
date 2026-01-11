@@ -145,7 +145,7 @@ class SimpleIpcClient {
     }
   }
 
-  async getAllTasks(): Promise<DownloadTask[]> {
+  async getAllDownloads(): Promise<DownloadTask[]> {
     try {
       const tasks = await this.invokeTauriCommand<any[]>('get_all_tasks');
       return tasks.map(task => ({

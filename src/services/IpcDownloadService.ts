@@ -101,7 +101,7 @@ export class IpcDownloadService implements IDownloadOperations {
    */
   async getAllDownloads(): Promise<DownloadTask[]> {
     try {
-      const tasks = await ipcClient.getAllTasks();
+      const tasks = await ipcClient.getAllDownloads();
       return tasks.map((task: any) => ({
         id: task.id,
         url: task.url,
