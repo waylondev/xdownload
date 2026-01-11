@@ -90,3 +90,35 @@ export function useSearchSuggestionsQuery(query: string, type: DownloadType) {
     staleTime: 5 * 60 * 1000, // 5分钟
   });
 }
+
+// 搜索Mutation Hook
+export function useSearchMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: { query: string; fileType: DownloadType; platform: string; page: number; pageSize: number }) => {
+      return searchService.search({
+        query: params.query,
+        fileType: params.fileType as any,
+        platform: params.platform,
+        page: params.page,
+        pageSize: params.pageSize
+      });
+    },
+    
+    onSuccess: (results) => {
+      // 使搜索查询无效，触发重新获取
+      queryClient.invalidateQueries({ 
+        queryKey: queryKeys.search('', '', '', 0) 
+      });
+      
+      // 可以在这里添加成功通知
+      console.log('搜索成功，找到结果:', results.items.length);
+    },
+    
+    onError: (error) => {
+      console.error('搜索失败:', error);
+      // 可以在这里添加错误通知
+    },
+  });
+}
