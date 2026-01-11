@@ -1,15 +1,58 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAppStore } from './stores/appStore';
 import { useSearch, usePlatforms, useTasks, useDownload } from './hooks/api';
 import { SearchBar } from './components/SearchBar';
 import { ResultsList } from './components/ResultsList';
 import TaskList from './components/TaskList';
-import { Music, Film, FileText, Menu, X, Github, Zap, Database, Settings, Info } from 'lucide-react';
+import { Music, Film, FileText, ChevronLeft, ChevronRight, Github, Zap, Database, Settings, Info, GripVertical } from 'lucide-react';
 
 function App() {
   // 状态
   const { searchQuery, activeType, selectedPlatform, setSearchQuery, setActiveType, setSelectedPlatform } = useAppStore();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(288); // 默认宽度18rem (288px)
+  const [isResizing, setIsResizing] = useState(false);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  
+  // 响应式设计：根据屏幕宽度自动调整侧边栏
+  useEffect(() => {
+    const handleResize = () => {
+      const screenWidth = window.innerWidth;
+      // 当屏幕宽度小于1024px时，自动收起侧边栏
+      if (screenWidth < 1024 && !sidebarCollapsed) {
+        setSidebarCollapsed(true);
+      } else if (screenWidth >= 1024 && sidebarCollapsed) {
+        setSidebarCollapsed(false);
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [sidebarCollapsed]);
+  
+  // 拖拽调整侧边栏宽度
+  const handleMouseDown = (_e: React.MouseEvent) => {
+    setIsResizing(true);
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+  
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!isResizing || !sidebarRef.current) return;
+    
+    const newWidth = e.clientX;
+    // 限制宽度范围：最小120px，最大400px
+    if (newWidth >= 120 && newWidth <= 400) {
+      setSidebarWidth(newWidth);
+      setSidebarCollapsed(false); // 拖拽时自动展开
+    }
+  };
+  
+  const handleMouseUp = () => {
+    setIsResizing(false);
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+  };
   
   // API调用
   const { mutate: search, isPending: searchLoading } = useSearch();
@@ -49,7 +92,14 @@ function App() {
     <div className="flex h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 overflow-hidden">
       {/* 左侧可收缩Sidebar */}
       <aside 
-        className={`bg-slate-900/95 backdrop-blur-md border-r border-slate-800 transition-all duration-500 ease-in-out ${sidebarCollapsed ? 'w-16' : 'w-72'} flex flex-col shadow-2xl z-10 overflow-hidden`}
+        ref={sidebarRef}
+        className={`bg-slate-900/95 backdrop-blur-md border-r border-slate-800 transition-all duration-500 ease-in-out flex flex-col shadow-2xl z-10 overflow-hidden`}
+        style={{ 
+          width: sidebarCollapsed ? '4rem' : `${sidebarWidth}px`,
+          minWidth: '4rem',
+          maxWidth: '400px',
+          flexShrink: 0
+        }}
       >
         {/* Logo区域 */}
         <div className="flex items-center justify-between p-4 border-b border-slate-800">
@@ -67,7 +117,7 @@ function App() {
             className="p-2 rounded-full bg-slate-800 hover:bg-slate-700 transition-all duration-300 hover:scale-110 flex-shrink-0 z-20"
             style={{ minWidth: '32px', minHeight: '32px' }}
           >
-            {sidebarCollapsed ? <Menu className="w-5 h-5 text-blue-400" /> : <X className="w-5 h-5 text-blue-400" />}
+            {sidebarCollapsed ? <ChevronRight className="w-5 h-5 text-blue-400" /> : <ChevronLeft className="w-5 h-5 text-blue-400" />}
           </button>
         </div>
 
@@ -184,6 +234,15 @@ function App() {
               GitHub
             </span>
           </a>
+        </div>
+        
+        {/* 侧边栏调整大小手柄 */}
+        <div 
+          className="absolute top-0 right-0 h-full w-2 cursor-col-resize bg-slate-800/50 hover:bg-blue-500/30 transition-all duration-200 z-20 flex items-center justify-center"
+          onMouseDown={handleMouseDown}
+          style={{ opacity: sidebarCollapsed ? 0 : 1 }}
+        >
+          <GripVertical className="w-2 h-8 text-slate-600 hover:text-blue-400 transition-colors" />
         </div>
       </aside>
 
