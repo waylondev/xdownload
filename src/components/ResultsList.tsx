@@ -69,7 +69,7 @@ export function ResultsList({ onDownload }: ResultsListProps) {
       </div>
       
       {/* 结果列表 */}
-      <div className="grid grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
         {paginatedResults.map((item: any) => (
           <Card 
             key={item.id} 
@@ -81,8 +81,32 @@ export function ResultsList({ onDownload }: ResultsListProps) {
             <CardContent className="p-6">
               <div className="flex flex-col md:flex-row gap-6">
                 {/* 媒体预览 */}
-                <div className="w-full md:w-24 h-24 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center shadow-lg group-hover:shadow-blue-500/20 transition-all duration-300">
-                  {getFileTypeIcon(item.fileType)}
+                <div className="w-full md:w-48 h-48 rounded-xl overflow-hidden shadow-lg group-hover:shadow-blue-500/20 transition-all duration-300 relative">
+                  {item.thumbnail ? (
+                    <img 
+                      src={item.thumbnail} 
+                      alt={item.title} 
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center">
+                      {getFileTypeIcon(item.fileType)}
+                    </div>
+                  )}
+                  {/* 播放按钮 - 仅视频和音乐显示 */}
+                  {(item.fileType === 'video' || item.fileType === 'audio' || item.fileType === 'music') && (
+                    <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-blue-600/80 transition-all duration-300 cursor-pointer scale-90 group-hover:scale-100">
+                        <PlayCircle className="w-8 h-8 text-white ml-1" />
+                      </div>
+                    </div>
+                  )}
+                  {/* 时长显示 - 仅视频和音乐显示 */}
+                  {(item.duration && (item.fileType === 'video' || item.fileType === 'audio' || item.fileType === 'music')) && (
+                    <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                      {item.duration}
+                    </div>
+                  )}
                 </div>
                 
                 {/* 内容信息 */}
