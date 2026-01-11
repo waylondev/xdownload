@@ -1,4 +1,4 @@
-// 统一接口定义 - 极简设计，预留扩展
+// 统一接口定义 - 简化版本
 
 // ==================== 核心类型定义 ====================
 
@@ -78,12 +78,6 @@ export interface UnifiedSearchRequest {
   fileType?: FileType;
   page?: number;
   pageSize?: number;
-  // 预留扩展字段
-  options?: {
-    filters?: Record<string, any>;
-    sortBy?: string;
-    sortOrder?: 'asc' | 'desc';
-  };
 }
 
 /**
@@ -95,12 +89,6 @@ export interface UnifiedSearchResponse {
   page: number;
   pageSize: number;
   totalPages: number;
-  // 预留扩展字段
-  metadata?: {
-    searchTime?: number;
-    platformInfo?: PlatformInfo;
-    suggestions?: string[];
-  };
 }
 
 /**
@@ -111,14 +99,6 @@ export interface UnifiedDownloadRequest {
   filename: string;
   platform: string;
   fileType: FileType;
-  // 预留扩展字段
-  options?: {
-    quality?: string;
-    format?: string;
-    outputPath?: string;
-    headers?: Record<string, string>;
-    cookies?: string;
-  };
 }
 
 /**
@@ -128,56 +108,6 @@ export interface UnifiedDownloadResponse {
   taskId: string;
   status: DownloadStatus;
   message?: string;
-  // 预留扩展字段
-  metadata?: {
-    estimatedSize?: number;
-    availableFormats?: string[];
-    downloadOptions?: Record<string, any>;
-  };
-}
-
-// ==================== 扩展接口（预留） ====================
-
-/**
- * 批量下载请求（预留）
- */
-export interface BatchDownloadRequest {
-  items: Array<{
-    url: string;
-    filename: string;
-    platform: string;
-    fileType: FileType;
-  }>;
-  options?: {
-    concurrentLimit?: number;
-    outputDirectory?: string;
-    onComplete?: (result: BatchDownloadResult) => void;
-  };
-}
-
-/**
- * 批量下载响应（预留）
- */
-export interface BatchDownloadResult {
-  total: number;
-  success: number;
-  failed: number;
-  tasks: DownloadTask[];
-}
-
-/**
- * 高级搜索请求（预留）
- */
-export interface AdvancedSearchRequest extends UnifiedSearchRequest {
-  filters?: {
-    duration?: { min?: number; max?: number };
-    size?: { min?: number; max?: number };
-    quality?: string[];
-    uploadDate?: { start?: Date; end?: Date };
-    language?: string[];
-  };
-  sortBy?: 'relevance' | 'date' | 'size' | 'duration' | 'popularity';
-  sortOrder?: 'asc' | 'desc';
 }
 
 // ==================== 服务接口定义 ====================
@@ -188,6 +118,9 @@ export interface AdvancedSearchRequest extends UnifiedSearchRequest {
 export interface ISearchOperations {
   search(request: UnifiedSearchRequest): Promise<UnifiedSearchResponse>;
   getSearchSuggestions?(query: string, platform: string): Promise<string[]>;
+  getPlatformInfo?(platformId: string): Promise<PlatformInfo | null>;
+  getAllPlatforms?(): Promise<PlatformInfo[]>;
+  getPlatformsByFileType?(fileType: FileType): Promise<PlatformInfo[]>;
 }
 
 /**
@@ -199,102 +132,15 @@ export interface IDownloadOperations {
   cancelDownload?(taskId: string): Promise<void>;
   pauseDownload?(taskId: string): Promise<void>;
   resumeDownload?(taskId: string): Promise<void>;
+  getAllDownloads?(): Promise<DownloadTask[]>;
+  deleteDownload?(taskId: string): Promise<void>;
+  batchDeleteDownloads?(taskIds: string[]): Promise<void>;
+  getDownloadStats?(): Promise<{
+    total: number;
+    completed: number;
+    failed: number;
+    downloading: number;
+    paused: number;
+  }>;
+  cleanupCompletedTasks?(): Promise<void>;
 }
-
-/**
- * 平台管理接口
- */
-export interface IPlatformOperations {
-  getAllPlatforms(): Promise<PlatformInfo[]>;
-  getPlatformsByFileType(fileType: FileType): Promise<PlatformInfo[]>;
-  getPlatformInfo(platformId: string): Promise<PlatformInfo | null>;
-  enablePlatform(platformId: string): Promise<void>;
-  disablePlatform(platformId: string): Promise<void>;
-}
-
-/**
- * 任务查询接口
- */
-export interface ITaskQueryOperations {
-  getAllTasks(): Promise<DownloadTask[]>;
-  getTasksByStatus(status: DownloadStatus): Promise<DownloadTask[]>;
-  getTasksByPlatform(platform: string): Promise<DownloadTask[]>;
-  getTasksByFileType(fileType: FileType): Promise<DownloadTask[]>;
-}
-
-// ==================== 统一服务接口 ====================
-
-/**
- * 统一应用服务接口
- * 整合所有核心操作，提供统一的API入口
- */
-export interface IUnifiedAppService {
-  // 核心操作
-  search: ISearchOperations['search'];
-  download: IDownloadOperations['download'];
-  
-  // 平台管理
-  platform: IPlatformOperations;
-  
-  // 任务管理
-  tasks: ITaskQueryOperations;
-  
-  // 可选的高级操作（预留）
-  advancedSearch?(request: AdvancedSearchRequest): Promise<UnifiedSearchResponse>;
-  batchDownload?(request: BatchDownloadRequest): Promise<BatchDownloadResult>;
-  
-  // 事件系统（预留）
-  on?(event: string, listener: Function): void;
-  off?(event: string, listener: Function): void;
-}
-
-// ==================== 错误类型定义 ====================
-
-/**
- * 应用错误类型
- */
-export enum AppErrorType {
-  NETWORK_ERROR = 'NETWORK_ERROR',
-  PLATFORM_ERROR = 'PLATFORM_ERROR',
-  VALIDATION_ERROR = 'VALIDATION_ERROR',
-  DOWNLOAD_ERROR = 'DOWNLOAD_ERROR',
-  SEARCH_ERROR = 'SEARCH_ERROR',
-  AUTH_ERROR = 'AUTH_ERROR',
-  UNKNOWN_ERROR = 'UNKNOWN_ERROR'
-}
-
-/**
- * 统一错误响应
- */
-export interface AppError {
-  type: AppErrorType;
-  message: string;
-  code?: string;
-  details?: any;
-  timestamp: Date;
-}
-
-// ==================== 工具类型 ====================
-
-/**
- * 分页参数
- */
-export interface PaginationParams {
-  page: number;
-  pageSize: number;
-}
-
-/**
- * 通用响应包装器
- */
-export interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: AppError;
-  metadata?: {
-    timestamp: Date;
-    requestId?: string;
-  };
-}
-
-export type { DownloadType } from './index';

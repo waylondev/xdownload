@@ -18,7 +18,6 @@ class SimpleIpcClient {
   // 搜索相关方法
   async search(request: UnifiedSearchRequest): Promise<UnifiedSearchResponse> {
     try {
-      // 使用Tauri IPC调用后端搜索功能 - 传递完整的request对象
       const result = await this.invokeTauriCommand<any>('search', {
         request: {
           query: request.query,
@@ -29,14 +28,13 @@ class SimpleIpcClient {
         }
       });
 
-      // 转换响应格式
       return {
         items: result.items.map((item: any) => ({
           id: item.id,
           title: item.title,
           url: item.url,
           platform: item.platform,
-          fileType: mapDownloadTypeToFileType(item.file_type || 'file'),
+          fileType: item.file_type || 'file',
           size: item.size,
           duration: item.duration,
           thumbnail: item.thumbnail,
@@ -54,46 +52,30 @@ class SimpleIpcClient {
       };
     } catch (error) {
       const errorMessage = `搜索失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
-      this.errorHandler.handleError({
-        type: AppErrorType.SEARCH_ERROR,
-        message: errorMessage,
-        code: 'IPC_SEARCH_FAILED',
-        details: { request, error },
-        timestamp: new Date()
-      });
       throw new Error(errorMessage);
     }
   }
 
   async getSearchSuggestions(query: string, platform: string): Promise<string[]> {
     try {
-      // 使用Tauri IPC调用后端搜索建议功能
       return await this.invokeTauriCommand<string[]>('get_search_suggestions', {
         query,
         platform
       });
     } catch (error) {
       const errorMessage = `获取搜索建议失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
-      this.errorHandler.handleError({
-        type: AppErrorType.SEARCH_ERROR,
-        message: errorMessage,
-        code: 'IPC_SUGGESTIONS_FAILED',
-        details: { query, platform, error },
-        timestamp: new Date()
-      });
-      return [];
+      throw new Error(errorMessage);
     }
   }
 
   // 下载相关方法
   async download(request: UnifiedDownloadRequest): Promise<UnifiedDownloadResponse> {
     try {
-      // 使用Tauri IPC调用后端下载功能 - 传递完整的request对象
       const taskId = await this.invokeTauriCommand<string>('start_download', {
         request: {
           url: request.url,
           filename: request.filename,
-          download_type: mapFileTypeToDownloadType(request.fileType),
+          download_type: request.fileType,
           platform: request.platform
         }
       });
@@ -105,154 +87,141 @@ class SimpleIpcClient {
       };
     } catch (error) {
       const errorMessage = `开始下载失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
-      this.errorHandler.handleError({
-        type: AppErrorType.DOWNLOAD_ERROR,
-        message: errorMessage,
-        code: 'IPC_DOWNLOAD_START_FAILED',
-        details: { request, error },
-        timestamp: new Date()
-      });
       throw new Error(errorMessage);
-    }
-  }
-
-  async pauseDownload(taskId: string): Promise<void> {
-    try {
-      // 使用Tauri IPC调用后端暂停下载功能 - 参数名使用snake_case匹配后端
-      await this.invokeTauriCommand<void>('pause_download', { task_id: taskId });
-    } catch (error) {
-      const errorMessage = `暂停下载失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
-      this.errorHandler.handleError({
-        type: AppErrorType.DOWNLOAD_ERROR,
-        message: errorMessage,
-        code: 'IPC_PAUSE_FAILED',
-        details: { taskId, error },
-        timestamp: new Date()
-      });
-      throw new Error(errorMessage);
-    }
-  }
-
-  async resumeDownload(taskId: string): Promise<void> {
-    try {
-      // 使用Tauri IPC调用后端恢复下载功能
-      await this.invokeTauriCommand<void>('resume_download', { taskId });
-    } catch (error) {
-      const errorMessage = `恢复下载失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
-      this.errorHandler.handleError({
-        type: AppErrorType.DOWNLOAD_ERROR,
-        message: errorMessage,
-        code: 'IPC_RESUME_FAILED',
-        details: { taskId, error },
-        timestamp: new Date()
-      });
-      throw new Error(errorMessage);
-    }
-  }
-
-  async cancelDownload(taskId: string): Promise<void> {
-    try {
-      // 使用Tauri IPC调用后端取消下载功能
-      await this.invokeTauriCommand<void>('cancel_download', { taskId });
-    } catch (error) {
-      const errorMessage = `取消下载失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
-      this.errorHandler.handleError({
-        type: AppErrorType.DOWNLOAD_ERROR,
-        message: errorMessage,
-        code: 'IPC_CANCEL_FAILED',
-        details: { taskId, error },
-        timestamp: new Date()
-      });
-      throw new Error(errorMessage);
-    }
-  }
-
-  // 任务查询相关方法
-  async getAllTasks(): Promise<DownloadTask[]> {
-    try {
-      // 使用Tauri IPC调用后端获取所有任务
-      const tasks = await this.invokeTauriCommand<any[]>('get_download_tasks');
-      return tasks.map((task: any) => ({
-        id: task.id,
-        url: task.url,
-        filename: task.filename,
-        progress: task.progress || 0,
-        status: task.status || 'pending',
-        speed: task.speed || '0 KB/s',
-        size: task.size || '未知',
-        downloaded: task.downloaded || '0B',
-        fileType: mapDownloadTypeToFileType(task.download_type || 'file'),
-        platform: task.platform || 'default',
-        createdAt: new Date((task.created_at || Date.now()) * 1000), // 转换为毫秒级时间戳
-        updatedAt: new Date((task.updated_at || Date.now()) * 1000) // 转换为毫秒级时间戳
-      }));
-    } catch (error) {
-      const errorMessage = `获取下载任务失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
-      this.errorHandler.handleError({
-        type: AppErrorType.DOWNLOAD_ERROR,
-        message: errorMessage,
-        code: 'IPC_GET_TASKS_FAILED',
-        details: { error },
-        timestamp: new Date()
-      });
-      return [];
     }
   }
 
   async getTaskById(taskId: string): Promise<DownloadTask | null> {
     try {
-      // 使用Tauri IPC调用后端获取单个任务
-      const task = await this.invokeTauriCommand<any>('get_download_task', { taskId });
+      const task = await this.invokeTauriCommand<any>('get_task_by_id', { taskId });
       if (!task) return null;
 
       return {
         id: task.id,
         url: task.url,
         filename: task.filename,
-        progress: task.progress || 0,
-        status: task.status || 'pending',
-        speed: task.speed || '0 KB/s',
-        size: task.size || '未知',
-        downloaded: task.downloaded || '0B',
-        fileType: mapDownloadTypeToFileType(task.download_type || 'file'),
-        platform: task.platform || 'default',
-        createdAt: new Date((task.created_at || Date.now()) * 1000), // 转换为毫秒级时间戳
-        updatedAt: new Date((task.updated_at || Date.now()) * 1000) // 转换为毫秒级时间戳
+        platform: task.platform,
+        fileType: task.file_type || 'file',
+        progress: task.progress,
+        status: task.status,
+        speed: task.speed,
+        size: task.size,
+        downloaded: task.downloaded,
+        estimatedTime: task.estimated_time,
+        errorDetails: task.error_details,
+        createdAt: task.created_at,
+        updatedAt: task.updated_at
       };
     } catch (error) {
-      const errorMessage = `获取下载任务失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
-      this.errorHandler.handleError({
-        type: AppErrorType.DOWNLOAD_ERROR,
-        message: errorMessage,
-        code: 'IPC_GET_TASK_FAILED',
-        details: { taskId, error },
-        timestamp: new Date()
-      });
-      return null;
+      const errorMessage = `获取任务详情失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
+      throw new Error(errorMessage);
+    }
+  }
+
+  async cancelDownload(taskId: string): Promise<void> {
+    try {
+      await this.invokeTauriCommand<void>('cancel_download', { taskId });
+    } catch (error) {
+      const errorMessage = `取消下载失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
+      throw new Error(errorMessage);
+    }
+  }
+
+  async pauseDownload(taskId: string): Promise<void> {
+    try {
+      await this.invokeTauriCommand<void>('pause_download', { taskId });
+    } catch (error) {
+      const errorMessage = `暂停下载失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
+      throw new Error(errorMessage);
+    }
+  }
+
+  async resumeDownload(taskId: string): Promise<void> {
+    try {
+      await this.invokeTauriCommand<void>('resume_download', { taskId });
+    } catch (error) {
+      const errorMessage = `恢复下载失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
+      throw new Error(errorMessage);
+    }
+  }
+
+  async getAllTasks(): Promise<DownloadTask[]> {
+    try {
+      const tasks = await this.invokeTauriCommand<any[]>('get_all_tasks');
+      return tasks.map(task => ({
+        id: task.id,
+        url: task.url,
+        filename: task.filename,
+        platform: task.platform,
+        fileType: task.file_type || 'file',
+        progress: task.progress,
+        status: task.status,
+        speed: task.speed,
+        size: task.size,
+        downloaded: task.downloaded,
+        estimatedTime: task.estimated_time,
+        errorDetails: task.error_details,
+        createdAt: task.created_at,
+        updatedAt: task.updated_at
+      }));
+    } catch (error) {
+      const errorMessage = `获取所有任务失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
+      throw new Error(errorMessage);
+    }
+  }
+
+  async deleteDownload(taskId: string): Promise<void> {
+    try {
+      await this.invokeTauriCommand<void>('delete_download', { taskId });
+    } catch (error) {
+      const errorMessage = `删除下载失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
+      throw new Error(errorMessage);
+    }
+  }
+
+  async batchDeleteDownloads(taskIds: string[]): Promise<void> {
+    try {
+      await this.invokeTauriCommand<void>('batch_delete_downloads', { taskIds });
+    } catch (error) {
+      const errorMessage = `批量删除下载失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
+      throw new Error(errorMessage);
+    }
+  }
+
+  async getDownloadStats(): Promise<{
+    total: number;
+    completed: number;
+    failed: number;
+    downloading: number;
+    paused: number;
+  }> {
+    try {
+      return await this.invokeTauriCommand<any>('get_download_stats');
+    } catch (error) {
+      const errorMessage = `获取下载统计失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
+      throw new Error(errorMessage);
+    }
+  }
+
+  async cleanupCompletedTasks(): Promise<void> {
+    try {
+      await this.invokeTauriCommand<void>('cleanup_completed_tasks');
+    } catch (error) {
+      const errorMessage = `清理已完成任务失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
+      throw new Error(errorMessage);
     }
   }
 
   // 平台相关方法
   async getPlatforms(): Promise<any[]> {
     try {
-      // 使用Tauri IPC调用后端获取平台列表
       return await this.invokeTauriCommand<any[]>('get_platforms');
     } catch (error) {
       const errorMessage = `获取平台列表失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
-      this.errorHandler.handleError({
-        type: AppErrorType.PLATFORM_ERROR,
-        message: errorMessage,
-        code: 'IPC_GET_PLATFORMS_FAILED',
-        details: { error },
-        timestamp: new Date()
-      });
-      return [];
+      throw new Error(errorMessage);
     }
   }
 }
 
-// 导出全局IPC客户端实例
+// 导出单例实例
 export const ipcClient = new SimpleIpcClient();
-
-// 导出类供测试使用
-export { SimpleIpcClient as IpcClient };

@@ -37,13 +37,6 @@ export class IpcDownloadService implements IDownloadOperations {
       };
     } catch (error) {
       const errorMessage = `开始下载失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
-      this.errorHandler.handleError({
-        type: AppErrorType.DOWNLOAD_ERROR,
-        message: errorMessage,
-        code: 'DOWNLOAD_START_FAILED',
-        details: { request, error },
-        timestamp: new Date()
-      });
       throw new Error(errorMessage);
     }
   }
@@ -76,13 +69,6 @@ export class IpcDownloadService implements IDownloadOperations {
       };
     } catch (error) {
       const errorMessage = `获取下载进度失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
-      this.errorHandler.handleError({
-        type: AppErrorType.DOWNLOAD_ERROR,
-        message: errorMessage,
-        code: 'DOWNLOAD_STATUS_FAILED',
-        details: { taskId, error },
-        timestamp: new Date()
-      });
       throw new Error(errorMessage);
     }
   }
@@ -95,13 +81,6 @@ export class IpcDownloadService implements IDownloadOperations {
       await ipcClient.cancelDownload(taskId);
     } catch (error) {
       const errorMessage = `取消下载失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
-      this.errorHandler.handleError({
-        type: AppErrorType.DOWNLOAD_ERROR,
-        message: errorMessage,
-        code: 'DOWNLOAD_CANCEL_FAILED',
-        details: { taskId, error },
-        timestamp: new Date()
-      });
       throw new Error(errorMessage);
     }
   }
@@ -114,13 +93,6 @@ export class IpcDownloadService implements IDownloadOperations {
       await ipcClient.pauseDownload(taskId);
     } catch (error) {
       const errorMessage = `暂停下载失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
-      this.errorHandler.handleError({
-        type: AppErrorType.DOWNLOAD_ERROR,
-        message: errorMessage,
-        code: 'DOWNLOAD_PAUSE_FAILED',
-        details: { taskId, error },
-        timestamp: new Date()
-      });
       throw new Error(errorMessage);
     }
   }
@@ -133,24 +105,17 @@ export class IpcDownloadService implements IDownloadOperations {
       await ipcClient.resumeDownload(taskId);
     } catch (error) {
       const errorMessage = `恢复下载失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
-      this.errorHandler.handleError({
-        type: AppErrorType.DOWNLOAD_ERROR,
-        message: errorMessage,
-        code: 'DOWNLOAD_RESUME_FAILED',
-        details: { taskId, error },
-        timestamp: new Date()
-      });
       throw new Error(errorMessage);
     }
   }
 
   /**
-   * 获取所有任务
+   * 获取所有下载任务
    */
-  async getAllTasks(): Promise<DownloadTask[]> {
+  async getAllDownloads(): Promise<DownloadTask[]> {
     try {
       const tasks = await ipcClient.getAllTasks();
-      return tasks.map(task => ({
+      return tasks.map((task: any) => ({
         id: task.id,
         url: task.url,
         filename: task.filename,
@@ -161,83 +126,68 @@ export class IpcDownloadService implements IDownloadOperations {
         speed: task.speed,
         size: task.size,
         downloaded: task.downloaded,
+        estimatedTime: task.estimatedTime,
+        errorDetails: task.errorDetails,
         createdAt: task.createdAt,
         updatedAt: task.updatedAt
       }));
     } catch (error) {
-      const errorMessage = `获取任务列表失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
-      this.errorHandler.handleError({
-        type: AppErrorType.DOWNLOAD_ERROR,
-        message: errorMessage,
-        code: 'GET_ALL_TASKS_FAILED',
-        details: { error },
-        timestamp: new Date()
-      });
-      return [];
+      const errorMessage = `获取所有下载任务失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
+      throw new Error(errorMessage);
     }
   }
 
   /**
-   * 根据状态获取任务
+   * 删除下载任务
    */
-  async getTasksByStatus(status: DownloadStatus): Promise<DownloadTask[]> {
+  async deleteDownload(taskId: string): Promise<void> {
     try {
-      const allTasks = await this.getAllTasks();
-      return allTasks.filter(task => task.status === status);
+      await ipcClient.deleteDownload(taskId);
     } catch (error) {
-      const errorMessage = `根据状态获取任务失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
-      this.errorHandler.handleError({
-        type: AppErrorType.DOWNLOAD_ERROR,
-        message: errorMessage,
-        code: 'GET_TASKS_BY_STATUS_FAILED',
-        details: { status, error },
-        timestamp: new Date()
-      });
-      return [];
+      const errorMessage = `删除下载任务失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
+      throw new Error(errorMessage);
     }
   }
 
   /**
-   * 根据平台获取任务
+   * 批量删除下载任务
    */
-  async getTasksByPlatform(platform: string): Promise<DownloadTask[]> {
+  async batchDeleteDownloads(taskIds: string[]): Promise<void> {
     try {
-      const allTasks = await this.getAllTasks();
-      return allTasks.filter(task => task.platform === platform);
+      await ipcClient.batchDeleteDownloads(taskIds);
     } catch (error) {
-      const errorMessage = `根据平台获取任务失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
-      this.errorHandler.handleError({
-        type: AppErrorType.DOWNLOAD_ERROR,
-        message: errorMessage,
-        code: 'GET_TASKS_BY_PLATFORM_FAILED',
-        details: { platform, error },
-        timestamp: new Date()
-      });
-      return [];
+      const errorMessage = `批量删除下载任务失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
+      throw new Error(errorMessage);
     }
   }
 
   /**
-   * 根据文件类型获取任务
+   * 获取下载统计信息
    */
-  async getTasksByFileType(fileType: FileType): Promise<DownloadTask[]> {
+  async getDownloadStats(): Promise<{
+    total: number;
+    completed: number;
+    failed: number;
+    downloading: number;
+    paused: number;
+  }> {
     try {
-      const allTasks = await this.getAllTasks();
-      return allTasks.filter(task => task.fileType === fileType);
+      return await ipcClient.getDownloadStats();
     } catch (error) {
-      const errorMessage = `根据文件类型获取任务失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
-      this.errorHandler.handleError({
-        type: AppErrorType.DOWNLOAD_ERROR,
-        message: errorMessage,
-        code: 'GET_TASKS_BY_FILE_TYPE_FAILED',
-        details: { fileType, error },
-        timestamp: new Date()
-      });
-      return [];
+      const errorMessage = `获取下载统计信息失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
+      throw new Error(errorMessage);
     }
   }
 
-  // 使用公共映射方法，不再重复实现
-
-
+  /**
+   * 清理已完成的任务
+   */
+  async cleanupCompletedTasks(): Promise<void> {
+    try {
+      await ipcClient.cleanupCompletedTasks();
+    } catch (error) {
+      const errorMessage = `清理已完成任务失败: ${error instanceof Error ? error.message : 'IPC调用失败'}`;
+      throw new Error(errorMessage);
+    }
+  }
 }
