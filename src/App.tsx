@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAppStore } from './stores/appStore';
 import { useSearch, usePlatforms, useTasks, useDownload } from './hooks/api';
 import { SearchBar } from './components/SearchBar';
@@ -11,6 +12,7 @@ function App() {
   const { searchQuery, activeType, selectedPlatform, activeView, setSearchQuery, setActiveType, setSelectedPlatform, setActiveView } = useAppStore();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const queryClient = useQueryClient();
   
   // 响应式设计：根据屏幕宽度自动调整侧边栏
   useEffect(() => {
@@ -60,6 +62,10 @@ function App() {
   // 类型切换处理
   const handleTypeChange = (type: 'music' | 'video' | 'file') => {
     setActiveType(type);
+    setSearchQuery('');
+    // 重置搜索结果
+    queryClient.setQueryData(['search'], null);
+    queryClient.invalidateQueries({ queryKey: ['search'] });
   };
 
   // 处理未实现功能的提示
@@ -107,6 +113,13 @@ function App() {
 
         {/* 导航菜单 */}
         <nav className="flex-1 p-2 space-y-1 overflow-y-auto scrollbar-hide">
+          {/* 次级导航标题 - 仅在展开时显示 */}
+          {!sidebarCollapsed && (
+            <div className="text-xs uppercase text-slate-500 mb-2 font-semibold px-3">
+              核心功能
+            </div>
+          )}
+
           {/* 音乐选项 */}
           <button
             onClick={() => {
