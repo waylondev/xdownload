@@ -1,14 +1,12 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-use std::sync::Mutex;
+use tokio::sync::Mutex;
 
 mod modules;
 
 // 导入简化的垂直模块API
-use modules::download::api::{
-    cancel_download, create_download_service, get_download_task, get_download_tasks,
-    pause_download, resume_download, start_download,
-};
+use modules::download::api::{cancel_download, create_download_service, get_download_task, get_download_tasks, pause_download, resume_download, start_download};
 use modules::platform::api::{create_platform_service, get_platforms};
+// 移除了过时的platform_fetcher引用
 use modules::search::api::{create_search_service, get_search_suggestions, search};
 #[tauri::command]
 fn greet(name: &str) -> String {

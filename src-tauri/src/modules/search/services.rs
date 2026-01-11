@@ -1,5 +1,6 @@
 // 搜索模块 - 服务层
 use super::models::{SearchItem, SearchResponse, SearchSuggestion};
+use crate::modules::platforms::{PlatformServiceManager, PlatformSearchItem};
 use rand::random;
 use serde::{Deserialize, Serialize};
 
@@ -19,9 +20,9 @@ struct SearchSuggestionsConfig {
 }
 
 /// 搜索服务
-#[derive(Debug)]
 pub struct SearchService {
     suggestions_config: SearchSuggestionsConfig,
+    platform_service_manager: PlatformServiceManager,
 }
 
 impl Default for SearchService {
@@ -49,28 +50,17 @@ impl SearchService {
             },
         };
         
-        Self { suggestions_config }
-    }
-
-    /// 生成搜索项
-    fn generate_search_item(
-        &self,
-        index: usize,
-        query: &str,
-        file_type: &str,
-        platform: &str,
-    ) -> SearchItem {
-        SearchItem::new(
-            format!("{}_{}_{}", file_type, platform, index),
-            format!("{} - {} 搜索结果 #{}", query, file_type, index),
-            format!("https://example.com/{}/{}", file_type, index),
-            platform.to_string(),
-            file_type.to_string(),
-        )
+        // 初始化平台服务管理器
+        let platform_service_manager = PlatformServiceManager::new();
+        
+        Self {
+            suggestions_config,
+            platform_service_manager,
+        }
     }
 
     /// 执行搜索
-    pub fn search(
+    pub async fn search(
         &self,
         query: &str,
         file_type: &str,
@@ -78,26 +68,42 @@ impl SearchService {
         page: u32,
         page_size: u32,
     ) -> SearchResponse {
-        // 模拟搜索结果
-        let mut items = Vec::new();
-
-        // 生成不同类型的mock数据
-        let item_count = 20; // 模拟总共有20条数据
-
-        for i in 0..item_count {
-            items.push(self.generate_search_item(i, query, file_type, platform));
-        }
-
-        // 分页处理
+        // 获取指定平台的搜索服务
+        let search_service = self.platform_service_manager.get_search_service(platform);
+        
+        // 调用平台搜索服务
+        let platform_items = if let Some(service) = search_service {
+            service.search(query, file_type, page, page_size).await
+        } else {
+            Vec::new()
+        };
+        
+        // 将平台搜索结果转换为搜索模块的结果格式
+        let items: Vec<SearchItem> = platform_items.into_iter().map(|item| {
+            SearchItem::new(
+                item.id,
+                item.title,
+                item.url,
+                item.platform,
+                item.file_type,
+            )
+            .with_size(item.size.clone().unwrap_or_default())
+            .with_duration(item.duration.clone().unwrap_or_default())
+            .with_thumbnail(item.thumbnail.clone().unwrap_or_default())
+            .with_description(item.description.clone().unwrap_or_default())
+            .with_uploader(item.uploader.clone().unwrap_or_default())
+            .with_upload_date(item.upload_date.clone().unwrap_or_default())
+            .with_quality(item.quality.clone().unwrap_or_default())
+            .with_format(item.format.clone().unwrap_or_default())
+        }).collect();
+        
+        // 保存结果数量
         let total = items.len() as u32;
-        let start = ((page - 1) * page_size) as usize;
-        let end = (start + page_size as usize).min(items.len());
-        let paginated_items = items[start..end].to_vec();
-
+        
         // 构建响应
         SearchResponse::new(
-            paginated_items,
-            total,
+            items,
+            total, // 使用实际搜索结果数量
             page,
             page_size,
             Some(serde_json::json!({ "query": query, "platform": platform })),

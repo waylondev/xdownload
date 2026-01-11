@@ -1,6 +1,6 @@
 // 搜索模块 - API层，实现IPC命令
 use serde::Deserialize;
-use std::sync::Mutex;
+use tokio::sync::Mutex;
 use tauri::State;
 
 use super::models::SearchResponse;
@@ -27,14 +27,14 @@ pub async fn search(
     search_service: State<'_, Mutex<SearchService>>,
     request: SearchRequest,
 ) -> Result<SearchResponse, String> {
-    let service = search_service.lock().map_err(|e| e.to_string())?;
+    let service = search_service.lock().await;
     let response = service.search(
         &request.query,
         &request.file_type,
         &request.platform,
         request.page,
         request.page_size,
-    );
+    ).await;
     Ok(response)
 }
 
@@ -45,7 +45,7 @@ pub async fn get_search_suggestions(
     query: String,
     platform: String,
 ) -> Result<Vec<String>, String> {
-    let service = search_service.lock().map_err(|e| e.to_string())?;
+    let service = search_service.lock().await;
     let suggestions = service.get_search_suggestions(&query, &platform);
     Ok(suggestions.into_iter().map(|s| s.text).collect())
 }

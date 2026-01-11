@@ -64,6 +64,42 @@ impl SearchItem {
         self.thumbnail = Some(thumbnail);
         self
     }
+
+    /// 设置描述
+    pub fn with_description(mut self, description: String) -> Self {
+        self.description = Some(description);
+        self
+    }
+
+    /// 设置上传者
+    pub fn with_uploader(mut self, uploader: String) -> Self {
+        self.uploader = Some(uploader);
+        self
+    }
+
+    /// 设置上传日期
+    pub fn with_upload_date(mut self, upload_date: String) -> Self {
+        self.upload_date = Some(upload_date);
+        self
+    }
+
+    /// 设置质量
+    pub fn with_quality(mut self, quality: String) -> Self {
+        self.quality = Some(quality);
+        self
+    }
+
+    /// 设置格式
+    pub fn with_format(mut self, format: String) -> Self {
+        self.format = Some(format);
+        self
+    }
+
+    /// 设置元数据
+    pub fn with_metadata(mut self, metadata: serde_json::Value) -> Self {
+        self.metadata = Some(metadata);
+        self
+    }
 }
 
 /// 搜索响应模型
