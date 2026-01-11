@@ -1,7 +1,6 @@
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader } from "./ui/card";
 import { Progress } from "./ui/progress";
-import { ScrollArea } from "./ui/scroll-area";
 import { Download, Play, Pause, Trash2 } from "lucide-react";
 import { DownloadTask } from "../types";
 import { IpcDownloadService } from "../services/IpcDownloadService";
@@ -46,13 +45,13 @@ const TaskList = ({ tasks, onTaskUpdate, onTaskDelete, className }: TaskListProp
         </h2>
       </CardHeader>
       <CardContent className="p-0 flex-1">
-        <ScrollArea className="h-[calc(100%-60px)]">
+        <div className="h-64 overflow-y-auto p-4">
           {tasks.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               暂无下载任务
             </div>
           ) : (
-            <div className="space-y-3 p-4">
+            <div className="space-y-3">
               {tasks.map((task) => (
                 <div key={task.id} className="p-3 border border-gray-200 dark:border-gray-700 rounded-md">
                   <div className="flex items-start justify-between">
@@ -111,7 +110,7 @@ const TaskList = ({ tasks, onTaskUpdate, onTaskDelete, className }: TaskListProp
               ))}
             </div>
           )}
-        </ScrollArea>
+        </div>
       </CardContent>
     </Card>
   );

@@ -10,6 +10,9 @@ import {
   useTasks,
   useSearchActions,
   useDownloadActions,
+  useSearchResults,
+  usePlatforms,
+  useLoading
 } from './stores/appStore';
 
 // TanStack Query
@@ -21,9 +24,12 @@ function App() {
 
   // Zustand状态
   const searchQuery = useSearchQuery();
+  const searchResults = useSearchResults();
   const activeType = useActiveType();
   const selectedPlatform = useSelectedPlatform();
   const tasks = useTasks();
+  const platforms = usePlatforms();
+  const loading = useLoading();
 
   // Zustand操作
   const searchActions = useSearchActions();
@@ -104,10 +110,10 @@ function App() {
       <ModernLayout
         activeType={activeType}
         searchQuery={searchQuery}
-        searchResults={[]}
+        searchResults={searchResults}
         selectedPlatform={selectedPlatform}
-        availablePlatforms={[]}
-        loading={false}
+        availablePlatforms={platforms}
+        loading={loading}
         sidebarCollapsed={sidebarCollapsed}
         onToggleSidebar={onToggleSidebar}
         onTypeChange={onTypeChange}

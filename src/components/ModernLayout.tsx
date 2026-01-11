@@ -416,15 +416,4 @@ const ModernLayout = ({
 };
 
 // 使用 React.memo 优化性能，避免不必要的重渲染
-export default memo(ModernLayout, (prevProps, nextProps) => {
-  // 自定义比较函数，只在必要属性变化时重渲染
-  return (
-    prevProps.activeType === nextProps.activeType &&
-    prevProps.selectedPlatform === nextProps.selectedPlatform &&
-    prevProps.searchQuery === nextProps.searchQuery &&
-    prevProps.searchResults === nextProps.searchResults &&
-    prevProps.availablePlatforms === nextProps.availablePlatforms &&
-    prevProps.loading === nextProps.loading &&
-    prevProps.sidebarCollapsed === nextProps.sidebarCollapsed
-  );
-});
+export default memo(ModernLayout);
