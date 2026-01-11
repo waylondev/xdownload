@@ -1,42 +1,20 @@
-// IPC下载服务 - 使用统一接口设计
+// IPC下载服务 - 简化版本
 import {
   UnifiedDownloadRequest,
   UnifiedDownloadResponse,
   IDownloadOperations,
   DownloadTask,
   DownloadStatus,
-  FileType,
-  AppErrorType
+  FileType
 } from '../types/unified-interface';
-import { DownloadType } from '../types';
-import { mapFileTypeToDownloadType } from '../lib/utils';
 import { ipcClient } from '../lib/ipc-client';
-import { ErrorHandlingService } from './ErrorHandlingService';
-import { validate } from '../lib/validators';
-import { ERROR_MESSAGES } from '../config/constants';
 
 export class IpcDownloadService implements IDownloadOperations {
-  private errorHandler = ErrorHandlingService.getInstance();
   
   /**
    * 开始下载
    */
   async download(request: UnifiedDownloadRequest): Promise<UnifiedDownloadResponse> {
-    // 参数验证 - 使用正确的类型转换
-    const downloadType = mapFileTypeToDownloadType(request.fileType) as DownloadType;
-    const validationErrors = validate.downloadParams(request.url, request.filename, downloadType);
-    if (validationErrors.length > 0) {
-      const error = new Error(`${ERROR_MESSAGES.INVALID_PARAMS}: ${validationErrors.join(', ')}`);
-      this.errorHandler.handleError({
-        type: AppErrorType.VALIDATION_ERROR,
-        message: error.message,
-        code: 'DOWNLOAD_VALIDATION_FAILED',
-        details: { request, errors: validationErrors },
-        timestamp: new Date()
-      });
-      throw error;
-    }
-
     try {
       const response = await ipcClient.download({
         url: request.url,

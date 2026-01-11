@@ -1,30 +1,18 @@
-// Tauri IPC客户端 - 使用Tauri官方IPC机制实现前后端通信
-
-// IPC客户端类 - 实现统一接口
+// Tauri IPC客户端 - 简化版本
 import {
   UnifiedSearchRequest,
   UnifiedSearchResponse,
   UnifiedDownloadRequest,
   UnifiedDownloadResponse,
-  DownloadTask,
-  AppErrorType
+  DownloadTask
 } from '../types/unified-interface';
-import { ErrorHandlingService } from '../services/ErrorHandlingService';
 import { invoke } from '@tauri-apps/api/core';
-import { mapDownloadTypeToFileType, mapFileTypeToDownloadType } from './utils';
 
-// Tauri IPC客户端实现 - 使用官方IPC机制
+// Tauri IPC客户端实现 - 简化版本
 class SimpleIpcClient {
-  private errorHandler = ErrorHandlingService.getInstance();
-
-  // 封装Tauri invoke调用，统一错误处理
+  // 封装Tauri invoke调用
   private async invokeTauriCommand<T>(command: string, args?: any): Promise<T> {
-    try {
-      return await invoke<T>(command, args);
-    } catch (error) {
-      console.error(`Tauri IPC调用失败 [${command}]:`, error);
-      throw error;
-    }
+    return await invoke<T>(command, args);
   }
 
   // 搜索相关方法

@@ -2,8 +2,24 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader } from "./ui/card";
 import { Progress } from "./ui/progress";
 import { Download, Play, Pause, Trash2 } from "lucide-react";
-import { DownloadTask } from "../types";
 import { IpcDownloadService } from "../services/IpcDownloadService";
+
+// 简化任务类型定义 - 使用any避免类型冲突
+interface DownloadTask {
+  id: string;
+  url: string;
+  filename: string;
+  title?: string;
+  progress: number;
+  status: string;
+  speed?: string;
+  size?: string;
+  downloaded?: string;
+  fileType: string;
+  platform: string;
+  eta?: string;
+  errorDetails?: string;
+}
 
 // 创建服务实例
 const downloadService = new IpcDownloadService();
