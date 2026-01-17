@@ -33,7 +33,7 @@ function App() {
     if (!command.trim()) return;
     
     setIsRunning(true);
-    setOutput(prev => [...prev, `$ ${command}`]);
+    setOutput(prev => [...prev, `${command}`]);
     
     try {
       await invoke('execute_command', { request: { command } });

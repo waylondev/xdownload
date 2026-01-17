@@ -26,7 +26,19 @@ impl CommandService {
         let program = parts[0];
         let args = &parts[1..];
 
-        let mut cmd = Command::new(program);
+        // 直接使用bin目录中的可执行文件
+        let current_dir = std::env::current_dir()
+            .map_err(|e| format!("获取当前目录失败: {}", e))?;
+        
+        let bin_path = current_dir
+            .join("bin")
+            .join(program);
+        
+        if !bin_path.exists() {
+            return Err(format!("{} 未找到，请确保bin目录中存在该文件", program));
+        }
+        
+        let mut cmd = Command::new(bin_path);
         cmd.args(args);
         
         let mut child = cmd
@@ -49,9 +61,9 @@ impl CommandService {
                             let _ = self.app_handle.emit("terminal-output", &line);
                         }
                         Ok(None) => break,
-                        Err(e) => {
-                            let _ = self.app_handle.emit("terminal-output", &format!("读取输出错误: {}", e));
-                            break;
+                        Err(_) => {
+                            // 忽略编码错误，继续执行
+                            continue;
                         }
                     }
                 }
@@ -61,9 +73,9 @@ impl CommandService {
                             let _ = self.app_handle.emit("terminal-output", &format!("错误: {}", line));
                         }
                         Ok(None) => break,
-                        Err(e) => {
-                            let _ = self.app_handle.emit("terminal-output", &format!("读取错误输出错误: {}", e));
-                            break;
+                        Err(_) => {
+                            // 忽略编码错误，继续执行
+                            continue;
                         }
                     }
                 }
