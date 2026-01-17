@@ -4,6 +4,11 @@
 
 XDownload is a minimalist download tool built with Rust + Tauri, focused on media content downloading.
 
+## Demo
+
+![Home](assets/home.png)
+![Home2](assets/home2.png)
+
 ## Features
 
 - ✅ Supports major video platforms (Bilibili, YouTube, NetEase Music, etc.)
