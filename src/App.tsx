@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { invoke, event } from '@tauri-apps/api';
+import { invoke } from '@tauri-apps/api/core';
+import { listen } from '@tauri-apps/api/event';
 
 function App() {
   const [command, setCommand] = useState('');
