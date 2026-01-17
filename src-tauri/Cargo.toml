@@ -19,29 +19,7 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 tauri = { version = "2", features = [] }
-tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tokio = { version = "1.40.0", features = ["full"] }
-log = "0.4"
-env_logger = "0.11"
-reqwest = { version = "0.12.1", features = ["json", "stream", "rustls-tls"] }
-tokio-util = { version = "0.7.13", features = ["codec"] }
-tokio-stream = { version = "0.1.15" }
-rusqlite = { version = "0.33.0", features = ["bundled", "serde_json", "chrono"] }
-tracing = { version = "0.1.41" }
-tracing-subscriber = { version = "0.3.18", features = ["env-filter", "std"] }
-anyhow = { version = "1.0.86" }
-thiserror = { version = "1.0.61" }
-clap = { version = "4.5.19", features = ["derive", "env"] }
-mime_guess = { version = "2.0.4" }
-sha2 = { version = "0.10.8" }
-chrono = { version = "0.4.38" }
-rand = "0.8.5"
-toml = "0.8.10"
-async-trait = "0.1.77"
-scraper = "0.19.0"
-select = "0.6.0"
-time = "0.3.36"
-urlencoding = "2.1.3"
 

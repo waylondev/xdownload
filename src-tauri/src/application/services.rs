@@ -1,13 +1,14 @@
 // 应用层 - 业务逻辑服务
-use std::sync::Arc;
-use tauri::Emitter;
+use tauri::{AppHandle, Emitter};
 
 /// 下载服务
-pub struct DownloadService;
+pub struct DownloadService {
+    app_handle: AppHandle,
+}
 
 impl DownloadService {
-    pub fn new() -> Self {
-        Self
+    pub fn new(app_handle: AppHandle) -> Self {
+        Self { app_handle }
     }
 
     /// 执行命令
@@ -57,11 +58,11 @@ impl DownloadService {
                     match result {
                         Ok(Some(line)) => {
                             // 发送输出到前端
-                            let _ = tauri::emit("terminal-output", &line);
+                            let _ = self.app_handle.emit("terminal-output", &line);
                         }
                         Ok(None) => break,
                         Err(e) => {
-                            let _ = tauri::emit("terminal-output", &format!("读取输出错误: {}", e));
+                            let _ = self.app_handle.emit("terminal-output", &format!("读取输出错误: {}", e));
                             break;
                         }
                     }
@@ -70,11 +71,11 @@ impl DownloadService {
                     match result {
                         Ok(Some(line)) => {
                             // 发送错误输出到前端
-                            let _ = tauri::emit("terminal-output", &format!("错误: {}", line));
+                            let _ = self.app_handle.emit("terminal-output", &format!("错误: {}", line));
                         }
                         Ok(None) => break,
                         Err(e) => {
-                            let _ = tauri::emit("terminal-output", &format!("读取错误输出错误: {}", e));
+                            let _ = self.app_handle.emit("terminal-output", &format!("读取错误输出错误: {}", e));
                             break;
                         }
                     }
@@ -83,14 +84,14 @@ impl DownloadService {
                     match status {
                         Ok(status) => {
                             if status.success() {
-                                let _ = tauri::emit("terminal-output", "命令执行成功");
+                                let _ = self.app_handle.emit("terminal-output", "命令执行成功");
                             } else {
-                                let _ = tauri::emit("terminal-output", &format!("命令执行失败，退出码: {}", status));
+                                let _ = self.app_handle.emit("terminal-output", &format!("命令执行失败，退出码: {}", status));
                             }
                             break;
                         }
                         Err(e) => {
-                            let _ = tauri::emit("terminal-output", &format!("等待命令完成错误: {}", e));
+                            let _ = self.app_handle.emit("terminal-output", &format!("等待命令完成错误: {}", e));
                             break;
                         }
                     }

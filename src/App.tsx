@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { invoke, event } from '@tauri-apps/api';
 
 function App() {
   const [command, setCommand] = useState('');
@@ -10,6 +9,7 @@ function App() {
   useEffect(() => {
     const setupEventListener = async () => {
       try {
+        const { event } = await import('@tauri-apps/api');
         const unlisten = await event.listen('terminal-output', (event) => {
           setOutput(prev => [...prev, event.payload as string]);
         });
@@ -31,6 +31,7 @@ function App() {
     setOutput(prev => [...prev, `$ ${command}`]);
     
     try {
+      const { invoke } = await import('@tauri-apps/api');
       await invoke('execute_command', { command });
       setOutput(prev => [...prev, '命令执行完成']);
     } catch (error) {
