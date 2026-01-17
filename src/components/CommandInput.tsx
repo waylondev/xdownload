@@ -17,7 +17,7 @@ export const CommandInput: React.FC<CommandInputProps> = ({
   onCopyCommand
 }) => {
   const quickCommands = [
-    { label: '🎵 Music', cmd: 'yt-dlp --extract-audio --audio-format mp3 https://www.bilibili.com/video/BV1Ek4y1r7Rg' },
+    { label: '🎵 Music', cmd: 'yt-dlp --extract-audio https://www.bilibili.com/video/BV1Ek4y1r7Rg' },
     { label: '🎬 Video', cmd: 'yt-dlp https://www.bilibili.com/video/BV1Ek4y1r7Rg' },
     { label: '🖼️ Images', cmd: 'yt-dlp --write-thumbnail --skip-download https://www.bilibili.com/video/BV1Ek4y1r7Rg' },
     { label: '📺 HD Quality', cmd: 'yt-dlp -f "best[height<=1080]" https://www.bilibili.com/video/BV1Ek4y1r7Rg' },
