@@ -16,7 +16,7 @@ use infrastructure::{
 };
 use application::services::DownloadService;
 use presentation::commands::{
-    get_config, save_config, parse_url, start_download, start_batch_download, get_download_progress
+    get_config, save_config, parse_url, start_download, get_download_progress
 };
 
 /// 创建下载服务实例（依赖注入）
@@ -51,7 +51,6 @@ pub fn run() {
             save_config,
             parse_url,
             start_download,
-            start_batch_download,
             get_download_progress
         ])
         .run(tauri::generate_context!())

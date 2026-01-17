@@ -31,30 +31,25 @@ pub struct SaveConfigRequest {
     pub config: AppConfig,
 }
 
-/// 批量下载请求
-#[derive(Debug, Deserialize)]
-pub struct StartBatchDownloadRequest {
-    pub url: String,
-    pub format_ids: Vec<String>,
-}
+
 
 /// 获取配置命令
 #[tauri::command]
-pub async fn get_config(
+pub fn get_config(
     download_service: State<'_, Mutex<DownloadService>>,
 ) -> Result<AppConfig, String> {
-    let service = download_service.lock().await;
-    service.get_config().await
+    let service = download_service.lock().unwrap();
+    service.get_config()
 }
 
 /// 保存配置命令
 #[tauri::command]
-pub async fn save_config(
+pub fn save_config(
     download_service: State<'_, Mutex<DownloadService>>,
     request: SaveConfigRequest,
 ) -> Result<(), String> {
-    let service = download_service.lock().await;
-    service.save_config(&request.config).await
+    let service = download_service.lock().unwrap();
+    service.save_config(&request.config)
 }
 
 /// 解析URL命令
@@ -78,15 +73,7 @@ pub async fn start_download(
     service.start_download(&request.url, &format_id).await
 }
 
-/// 开始批量下载命令
-#[tauri::command]
-pub async fn start_batch_download(
-    download_service: State<'_, Mutex<DownloadService>>,
-    request: StartBatchDownloadRequest,
-) -> Result<String, String> {
-    let service = download_service.lock().await;
-    service.start_batch_download(&request.url, request.format_ids).await
-}
+
 
 /// 获取下载进度命令
 #[tauri::command]
