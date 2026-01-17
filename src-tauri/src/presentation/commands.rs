@@ -1,10 +1,10 @@
 // 表示层 - Tauri命令接口
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use tokio::sync::Mutex;
 use tauri::State;
 
 use crate::application::services::DownloadService;
-use crate::domain::entities::{ParseResult, DownloadTask};
+use crate::domain::entities::{AppConfig, ParseResult, DownloadTask};
 
 /// 解析URL请求
 #[derive(Debug, Deserialize)]
@@ -25,6 +25,38 @@ pub struct GetDownloadProgressRequest {
     pub task_id: String,
 }
 
+/// 保存配置请求
+#[derive(Debug, Deserialize)]
+pub struct SaveConfigRequest {
+    pub config: AppConfig,
+}
+
+/// 批量下载请求
+#[derive(Debug, Deserialize)]
+pub struct StartBatchDownloadRequest {
+    pub url: String,
+    pub format_ids: Vec<String>,
+}
+
+/// 获取配置命令
+#[tauri::command]
+pub async fn get_config(
+    download_service: State<'_, Mutex<DownloadService>>,
+) -> Result<AppConfig, String> {
+    let service = download_service.lock().await;
+    service.get_config().await
+}
+
+/// 保存配置命令
+#[tauri::command]
+pub async fn save_config(
+    download_service: State<'_, Mutex<DownloadService>>,
+    request: SaveConfigRequest,
+) -> Result<(), String> {
+    let service = download_service.lock().await;
+    service.save_config(&request.config).await
+}
+
 /// 解析URL命令
 #[tauri::command]
 pub async fn parse_url(
@@ -42,9 +74,18 @@ pub async fn start_download(
     request: StartDownloadRequest,
 ) -> Result<String, String> {
     let service = download_service.lock().await;
-    let task_id = service.create_download_task(&request.url).await?;
-    service.start_download(&task_id, request.format_id.as_deref()).await?;
-    Ok(task_id)
+    let format_id = request.format_id.unwrap_or_else(|| "best".to_string());
+    service.start_download(&request.url, &format_id).await
+}
+
+/// 开始批量下载命令
+#[tauri::command]
+pub async fn start_batch_download(
+    download_service: State<'_, Mutex<DownloadService>>,
+    request: StartBatchDownloadRequest,
+) -> Result<String, String> {
+    let service = download_service.lock().await;
+    service.start_batch_download(&request.url, request.format_ids).await
 }
 
 /// 获取下载进度命令

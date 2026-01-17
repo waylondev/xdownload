@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { Button } from './components/ui/button';
 import { Input } from './components/ui/input';
-import { Zap, Download, File, Clock } from 'lucide-react';
+import { ConfigPanel } from './components/ConfigPanel';
+import { Zap, Download, File, Clock, Settings } from 'lucide-react';
 
 // 视频格式类型
 type VideoFormat = {
@@ -44,6 +45,7 @@ function App() {
   const [selectedFormat, setSelectedFormat] = useState<string>('');
   const [downloadTask, setDownloadTask] = useState<DownloadTask | null>(null);
   const [status, setStatus] = useState<DownloadStatus>('idle');
+  const [showConfig, setShowConfig] = useState(false);
 
   // 解析URL
   const handleParseUrl = async () => {
@@ -160,11 +162,23 @@ function App() {
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 overflow-hidden">
+      {/* 配置面板 */}
+      <ConfigPanel isOpen={showConfig} onClose={() => setShowConfig(false)} />
+      
       {/* 主内容区 */}
       <main className="flex-1 flex flex-col items-center justify-center p-4">
         {/* 顶部装饰 */}
         <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-blue-500/5 rounded-full blur-3xl -z-10"></div>
         <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-purple-500/5 rounded-full blur-3xl -z-10"></div>
+        
+        {/* 配置按钮 */}
+        <Button
+          onClick={() => setShowConfig(true)}
+          className="absolute top-4 right-4 bg-slate-800/50 hover:bg-slate-700/50 backdrop-blur-sm border border-slate-700"
+          size="sm"
+        >
+          <Settings className="w-4 h-4" />
+        </Button>
         
         <div className="w-full max-w-2xl space-y-8">
           {/* 标题 */}

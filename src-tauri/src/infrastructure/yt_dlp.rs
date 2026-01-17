@@ -21,12 +21,8 @@ impl YtDlpUrlParser {
 
 #[async_trait]
 impl UrlParser for YtDlpUrlParser {
-    async fn parse_url(&self, url: &str) -> Result<ParseResult, String> {
-        info!("开始解析URL: {}", url);
-        
-        // 使用yt-dlp解析URL
-        let yt_dlp_path = "../bin/yt-dlp.exe";
-        debug!("yt-dlp路径: {}", yt_dlp_path);
+    async fn parse_url(&self, url: &str, yt_dlp_path: &str) -> Result<ParseResult, String> {
+        info!("开始解析URL: {}, yt-dlp路径: {}", url, yt_dlp_path);
         
         let output = Command::new(yt_dlp_path)
             .args(["--dump-json", url])
@@ -124,40 +120,36 @@ impl ContentDownloader for YtDlpContentDownloader {
     async fn download_content(
         &self, 
         url: &str, 
-        format_id: Option<&str>,
+        format_id: &str,
+        yt_dlp_path: &str,
+        download_path: &str,
         progress_callback: Box<dyn Fn(f32, String) + Send + Sync>
     ) -> Result<(), String> {
-        info!("开始下载内容: URL={}, 格式={:?}", url, format_id);
+        info!("开始下载内容: URL={}, 格式={}, yt-dlp路径={}, 下载路径={}", 
+              url, format_id, yt_dlp_path, download_path);
         
         // 构建yt-dlp命令
         // 创建下载目录
-        let downloads_dir = "../downloads";
-        std::fs::create_dir_all(downloads_dir)
+        std::fs::create_dir_all(download_path)
             .map_err(|e| {
                 error!("创建下载目录失败: {}", e);
                 format!("Failed to create downloads directory: {}", e)
             })?;
-        info!("下载目录已创建: {}", downloads_dir);
+        info!("下载目录已创建: {}", download_path);
         
         // 设置下载输出路径
-        let output_path = "../downloads/%(title)s.%(ext)s";
+        let output_path = format!("{}/%(title)s.%(ext)s", download_path);
         
         let mut args = vec![
-            "-o", output_path,
+            "-o", &output_path,
             "--newline", // 输出进度信息
+            "-f", format_id,
         ];
         
-        if let Some(format) = format_id {
-            args.push("-f");
-            args.push(format);
-            info!("使用指定格式下载: {}", format);
-        } else {
-            info!("使用默认格式下载");
-        }
+        info!("使用指定格式下载: {}", format_id);
         
         args.push(url);
         
-        let yt_dlp_path = "../bin/yt-dlp.exe";
         debug!("yt-dlp命令: {} {}", yt_dlp_path, args.join(" "));
         
         let mut child = Command::new(yt_dlp_path)
