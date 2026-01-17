@@ -86,8 +86,8 @@ export const CommandInput: React.FC<CommandInputProps> = ({
             <QuickCommandButton
               key={index}
               label={item.label}
-              command={item.cmd}
-              onSelect={onCommandChange}
+              cmd={item.cmd}
+              onClick={onCommandChange}
             />
           ))}
         </div>

@@ -17,6 +17,7 @@ impl CommandService {
     pub async fn execute_command(&self, command: &str) -> Result<(), String> {
         use tokio::process::Command;
         use tokio::io::{AsyncBufReadExt, BufReader};
+        use std::env;
 
         let parts: Vec<&str> = command.split_whitespace().collect();
         if parts.is_empty() {
@@ -28,6 +29,22 @@ impl CommandService {
 
         // Execute command directly, assuming yt-dlp is in system PATH
         let mut cmd = Command::new(program);
+        
+        // Get current working directory
+        let current_dir = env::current_dir()
+            .map_err(|e| format!("Failed to get current directory: {}", e))?;
+        let downloads_dir = current_dir.join("xdownloads");
+        
+        // Create xdownloads directory if it doesn't exist
+        if !downloads_dir.exists() {
+            tokio::fs::create_dir_all(&downloads_dir).await
+                .map_err(|e| format!("Failed to create xdownloads directory: {}", e))?;
+        }
+        
+        // Add output path argument
+        let output_arg = format!("-o{}/%(title)s.%(ext)s", downloads_dir.display());
+        cmd.arg(output_arg);
+        
         cmd.args(args);
         
         let mut child = cmd

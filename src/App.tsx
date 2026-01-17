@@ -33,13 +33,11 @@ function App() {
     if (!command.trim()) return;
     
     setIsRunning(true);
-    setOutput(prev => [...prev, `${command}`]);
     
     try {
       await invoke('execute_command', { request: { command } });
-      setOutput(prev => [...prev, 'Command execution completed']);
     } catch (error) {
-      setOutput(prev => [...prev, `Error: ${error}`]);
+      console.error('Command execution error:', error);
     } finally {
       setIsRunning(false);
     }
