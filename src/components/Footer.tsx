@@ -33,7 +33,7 @@ export const Footer: React.FC = () => {
   ];
 
   return (
-    <div className="mt-6 flex justify-center gap-6">
+    <div className="mt-4 sm:mt-6 flex justify-center gap-4 sm:gap-6 flex-wrap">
       {footerLinks.map((link, index) => (
         <LinkWithCopy
           key={index}

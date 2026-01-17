@@ -57,21 +57,23 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100">
-      <div className="container mx-auto px-4 py-6 max-w-6xl">
+      <div className="container mx-auto px-4 py-4 sm:py-6 max-w-3xl lg:max-w-4xl">
         <Header isRunning={isRunning} />
         
-        <CommandInput
-          command={command}
-          isRunning={isRunning}
-          onCommandChange={setCommand}
-          onExecute={executeCommand}
-          onCopyCommand={copyCommand}
-        />
-        
-        <DownloadLog
-          output={output}
-          onClearOutput={clearOutput}
-        />
+        <div className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
+          <CommandInput
+            command={command}
+            isRunning={isRunning}
+            onCommandChange={setCommand}
+            onExecute={executeCommand}
+            onCopyCommand={copyCommand}
+          />
+          
+          <DownloadLog
+            output={output}
+            onClearOutput={clearOutput}
+          />
+        </div>
         
         <Footer />
       </div>

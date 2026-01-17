@@ -1,4 +1,4 @@
-// 应用入口点 - 符合Clean Architecture
+// Application entry point - Following Clean Architecture
 mod command_service;
 
 use command_service::CommandService;
