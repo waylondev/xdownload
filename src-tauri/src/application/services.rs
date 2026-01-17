@@ -1,38 +1,58 @@
 // 应用层 - 业务逻辑服务（依赖领域层接口）
 use std::sync::Arc;
+use log::{info, warn, error, debug};
 
 use crate::domain::{
-    entities::{DownloadTask, DownloadStatus, ParseResult},
-    repository::{DownloadTaskRepository, UrlParser, ContentDownloader}
+    entities::{AppConfig, DownloadTask, BatchDownloadTask, DownloadStatus, ParseResult},
+    repository::{ConfigRepository, DownloadTaskRepository, BatchDownloadTaskRepository, UrlParser, ContentDownloader}
 };
 
-/// 下载服务 - 应用层核心服务
+/// 下载服务（单一职责原则）
 pub struct DownloadService {
+    config_repository: Arc<dyn ConfigRepository>,
     task_repository: Arc<dyn DownloadTaskRepository>,
+    batch_task_repository: Arc<dyn BatchDownloadTaskRepository>,
     url_parser: Arc<dyn UrlParser>,
     content_downloader: Arc<dyn ContentDownloader>,
 }
 
 impl DownloadService {
     pub fn new(
+        config_repository: Arc<dyn ConfigRepository>,
         task_repository: Arc<dyn DownloadTaskRepository>,
+        batch_task_repository: Arc<dyn BatchDownloadTaskRepository>,
         url_parser: Arc<dyn UrlParser>,
         content_downloader: Arc<dyn ContentDownloader>,
     ) -> Self {
         Self {
+            config_repository,
             task_repository,
+            batch_task_repository,
             url_parser,
             content_downloader,
         }
     }
     
     /// 解析URL获取视频信息（单一职责原则）
+/// 解析URL
     pub async fn parse_url(&self, url: &str) -> Result<ParseResult, String> {
-        self.url_parser.parse_url(url).await
+        info!("应用层: 开始解析URL: {}", url);
+        let result = self.url_parser.parse_url(url).await;
+        match &result {
+            Ok(parse_result) => {
+                info!("应用层: URL解析成功, 标题: {}, 格式数: {}", 
+                      parse_result.title, parse_result.formats.len());
+            }
+            Err(e) => {
+                error!("应用层: URL解析失败: {}", e);
+            }
+        }
+        result
     }
     
     /// 创建下载任务
     pub async fn create_download_task(&self, url: &str) -> Result<String, String> {
+        info!("应用层: 创建下载任务, URL: {}", url);
         let task_id = format!(
             "task_{}",
             std::time::SystemTime::now()
@@ -42,9 +62,16 @@ impl DownloadService {
         );
         
         let task = DownloadTask::new(task_id.clone(), url.to_string());
-        self.task_repository.save(&task).await?;
-        
-        Ok(task_id)
+        let result = self.task_repository.save(&task).await
+            .map(|_| {
+                info!("应用层: 下载任务创建成功, 任务ID: {}", task_id);
+                task_id.clone()
+            })
+            .map_err(|e| {
+                error!("应用层: 下载任务创建失败: {}", e);
+                format!("Failed to create download task: {}", e)
+            });
+        result
     }
     
     /// 开始下载视频（开闭原则 - 易于扩展）

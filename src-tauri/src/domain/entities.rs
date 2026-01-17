@@ -1,46 +1,39 @@
-// 领域层 - 核心实体定义
+// 领域层 - 实体定义
 use serde::{Deserialize, Serialize};
 
-/// 下载任务状态枚举
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub enum DownloadStatus {
-    Pending,
-    Parsing,
-    Ready,
-    Downloading,
-    Completed,
-    Failed,
+/// 应用配置
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AppConfig {
+    pub yt_dlp_path: String,
+    pub download_path: String,
+    pub max_concurrent_downloads: usize,
 }
 
-/// 视频格式信息实体
-#[derive(Debug, Serialize, Deserialize, Clone)]
+impl Default for AppConfig {
+    fn default() -> Self {
+        Self {
+            yt_dlp_path: "../bin/yt-dlp.exe".to_string(),
+            download_path: "../downloads".to_string(),
+            max_concurrent_downloads: 3,
+        }
+    }
+}
+
+/// 视频格式
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VideoFormat {
     pub format_id: String,
     pub ext: String,
     pub resolution: Option<String>,
     pub filesize: Option<u64>,
     pub format_note: Option<String>,
+    pub fps: Option<f32>,
+    pub vcodec: Option<String>,
+    pub acodec: Option<String>,
 }
 
-/// 下载任务实体
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct DownloadTask {
-    pub id: String,
-    pub url: String,
-    pub title: Option<String>,
-    pub duration: Option<f64>,
-    pub thumbnail: Option<String>,
-    pub formats: Vec<VideoFormat>,
-    pub status: DownloadStatus,
-    pub progress: f32,
-    pub speed: String,
-    pub error: Option<String>,
-    pub created_at: i64,
-    pub updated_at: i64,
-}
-
-/// URL解析结果实体
-#[derive(Debug, Serialize, Deserialize)]
+/// 解析结果
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ParseResult {
     pub title: String,
     pub duration: Option<f64>,
@@ -48,13 +41,39 @@ pub struct ParseResult {
     pub formats: Vec<VideoFormat>,
 }
 
-// 实体方法实现
+/// 下载状态
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum DownloadStatus {
+    Pending,
+    Downloading,
+    Completed,
+    Failed,
+    Cancelled,
+}
+
+/// 下载任务
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DownloadTask {
+    pub id: String,
+    pub url: String,
+    pub title: Option<String>,
+    pub duration: Option<f64>,
+    pub thumbnail: Option<String>,
+    pub format_id: String,
+    pub status: DownloadStatus,
+    pub progress: f32,
+    pub speed: String,
+    pub file_path: Option<String>,
+    pub created_at: u64,
+    pub updated_at: u64,
+}
+
 impl DownloadTask {
-    pub fn new(id: String, url: String) -> Self {
+    pub fn new(id: String, url: String, format_id: String) -> Self {
         let now = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_secs() as i64;
+            .unwrap_or_default()
+            .as_secs();
         
         Self {
             id,
@@ -62,41 +81,27 @@ impl DownloadTask {
             title: None,
             duration: None,
             thumbnail: None,
-            formats: Vec::new(),
+            format_id,
             status: DownloadStatus::Pending,
             progress: 0.0,
             speed: "0 KB/s".to_string(),
-            error: None,
+            file_path: None,
             created_at: now,
             updated_at: now,
         }
     }
-    
-    pub fn update_progress(&mut self, progress: f32, speed: String) {
-        self.progress = progress;
-        self.speed = speed;
-        self.status = DownloadStatus::Downloading;
-        self.updated_at = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_secs() as i64;
-    }
-    
-    pub fn mark_completed(&mut self) {
-        self.status = DownloadStatus::Completed;
-        self.progress = 100.0;
-        self.updated_at = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_secs() as i64;
-    }
-    
-    pub fn mark_failed(&mut self, error: String) {
-        self.status = DownloadStatus::Failed;
-        self.error = Some(error);
-        self.updated_at = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_secs() as i64;
-    }
+}
+
+/// 批量下载任务组
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BatchDownloadTask {
+    pub id: String,
+    pub url: String,
+    pub title: Option<String>,
+    pub thumbnail: Option<String>,
+    pub format_ids: Vec<String>,
+    pub tasks: Vec<DownloadTask>,
+    pub status: DownloadStatus,
+    pub progress: f32,
+    pub created_at: u64,
 }

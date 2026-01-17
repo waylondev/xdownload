@@ -55,6 +55,9 @@ function App() {
     setStatus('parsing');
     
     try {
+      // 调试：检查URL参数
+      console.log('解析URL参数:', url);
+      
       // 调用后端解析URL
       const result = await invoke('parse_url', { request: { url } });
       setParseResult(result);
@@ -120,10 +123,10 @@ function App() {
             
             if (progress.status === 'completed') {
               clearInterval(progressInterval);
-              setStatus('completed');
+              setStatus('ready'); // 下载完成后重置为ready状态，允许重新解析
             } else if (progress.status === 'failed') {
               clearInterval(progressInterval);
-              setStatus('failed');
+              setStatus('ready'); // 下载失败后也重置为ready状态
             }
           }
         } catch (error) {
