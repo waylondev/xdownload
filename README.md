@@ -19,6 +19,57 @@ XDownload is a minimalist download tool built with Rust + Tauri, focused on medi
 
 ## Quick Start
 
+### Prerequisites
+
+Before using XDownload, you need to install yt-dlp:
+
+**Windows:**
+```bash
+# Using winget (recommended)
+winget install yt-dlp
+
+# Or download from GitHub and add to PATH
+# https://github.com/yt-dlp/yt-dlp/releases
+```
+
+**macOS:**
+```bash
+# Using Homebrew
+brew install yt-dlp
+```
+
+**Linux:**
+```bash
+# Using pip
+pip install yt-dlp
+
+# Or using package manager (Ubuntu/Debian)
+sudo apt install yt-dlp
+```
+
+### Optional: Install FFmpeg (for video merging)
+
+For best experience with video downloads, install FFmpeg:
+
+**Windows:**
+```bash
+winget install ffmpeg
+```
+
+**macOS:**
+```bash
+brew install ffmpeg
+```
+
+**Linux:**
+```bash
+# Ubuntu/Debian
+sudo apt install ffmpeg
+
+# CentOS/RHEL
+sudo yum install ffmpeg
+```
+
 ### Install Dependencies
 
 ```bash
