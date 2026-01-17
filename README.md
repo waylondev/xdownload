@@ -6,7 +6,7 @@ XDownload is a minimalist download tool built with Rust + Tauri, focused on medi
 
 ## Demo
 
-![Home](assets/home.png)
+![Home](assets/home.gif)
 ![Home2](assets/home2.png)
 
 ## Features
@@ -115,6 +115,15 @@ Enter any `yt-dlp` command in the input box, supporting all yt-dlp parameters an
 ## Download Path
 
 All downloaded content is automatically saved to the `xdownloads` folder in the current working directory.
+
+## Troubleshooting
+
+For detailed usage instructions and troubleshooting, please refer to the [yt-dlp documentation](https://github.com/yt-dlp/yt-dlp).
+
+Common issues:
+- Ensure yt-dlp is installed and in system PATH
+- Some platforms (like Douyin) may require cookies for download
+- FFmpeg is recommended for video merging operations
 
 ## License
 
