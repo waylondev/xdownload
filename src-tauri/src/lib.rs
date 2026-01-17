@@ -24,7 +24,6 @@ pub fn create_download_service() -> DownloadService {
     // 创建基础设施层实例
     let config_repository = Arc::new(FileConfigRepository::new());
     let task_repository = Arc::new(InMemoryDownloadTaskRepository::new());
-    let batch_task_repository = Arc::new(InMemoryDownloadTaskRepository::new()); // 暂时使用同一个实现
     let url_parser = Arc::new(YtDlpUrlParser::new());
     let content_downloader = Arc::new(YtDlpContentDownloader::new());
     
@@ -32,7 +31,6 @@ pub fn create_download_service() -> DownloadService {
     DownloadService::new(
         config_repository,
         task_repository,
-        batch_task_repository,
         url_parser,
         content_downloader
     )

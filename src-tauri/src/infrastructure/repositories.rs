@@ -30,15 +30,29 @@ impl DownloadTaskRepository for InMemoryDownloadTaskRepository {
         Ok(())
     }
     
-    async fn find_by_id(&self, task_id: &str) -> Option<DownloadTask> {
+    async fn find_by_id(&self, task_id: &str) -> Result<Option<DownloadTask>, String> {
         let tasks = self.tasks.read().await;
-        tasks.get(task_id).cloned()
+        Ok(tasks.get(task_id).cloned())
+    }
+    
+    async fn find_all(&self) -> Result<Vec<DownloadTask>, String> {
+        let tasks = self.tasks.read().await;
+        Ok(tasks.values().cloned().collect())
     }
     
     async fn update(&self, task: &DownloadTask) -> Result<(), String> {
         let mut tasks = self.tasks.write().await;
         if tasks.contains_key(&task.id) {
             tasks.insert(task.id.clone(), task.clone());
+            Ok(())
+        } else {
+            Err("Task not found".to_string())
+        }
+    }
+    
+    async fn delete(&self, task_id: &str) -> Result<(), String> {
+        let mut tasks = self.tasks.write().await;
+        if tasks.remove(task_id).is_some() {
             Ok(())
         } else {
             Err("Task not found".to_string())

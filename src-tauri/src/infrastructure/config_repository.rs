@@ -1,8 +1,12 @@
 // 基础设施层 - 配置存储实现
 use std::fs;
+use async_trait::async_trait;
 use serde_json;
 
-use crate::domain::entities::AppConfig;
+use crate::domain::{
+    entities::AppConfig,
+    repository::ConfigRepository
+};
 
 /// 文件配置存储实现
 pub struct FileConfigRepository;
@@ -11,8 +15,11 @@ impl FileConfigRepository {
     pub fn new() -> Self {
         Self
     }
-    
-    pub fn load_config(&self) -> Result<AppConfig, String> {
+}
+
+#[async_trait]
+impl ConfigRepository for FileConfigRepository {
+    async fn load_config(&self) -> Result<AppConfig, String> {
         let config_path = "config.json";
         
         if !std::path::Path::new(config_path).exists() {
@@ -28,7 +35,7 @@ impl FileConfigRepository {
         Ok(config)
     }
     
-    pub fn save_config(&self, config: &AppConfig) -> Result<(), String> {
+    async fn save_config(&self, config: &AppConfig) -> Result<(), String> {
         let config_path = "config.json";
         
         let content = serde_json::to_string_pretty(config)

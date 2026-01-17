@@ -1,5 +1,5 @@
 // 表示层 - Tauri命令接口
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use tokio::sync::Mutex;
 use tauri::State;
 
@@ -35,21 +35,21 @@ pub struct SaveConfigRequest {
 
 /// 获取配置命令
 #[tauri::command]
-pub fn get_config(
+pub async fn get_config(
     download_service: State<'_, Mutex<DownloadService>>,
 ) -> Result<AppConfig, String> {
-    let service = download_service.lock().unwrap();
-    service.get_config()
+    let service = download_service.lock().await;
+    service.get_config().await
 }
 
 /// 保存配置命令
 #[tauri::command]
-pub fn save_config(
+pub async fn save_config(
     download_service: State<'_, Mutex<DownloadService>>,
     request: SaveConfigRequest,
 ) -> Result<(), String> {
-    let service = download_service.lock().unwrap();
-    service.save_config(&request.config)
+    let service = download_service.lock().await;
+    service.save_config(&request.config).await
 }
 
 /// 解析URL命令
