@@ -152,7 +152,7 @@ impl ContentDownloader for YtDlpContentDownloader {
             }
         }
         
-        let status = child.wait().await
+        let status = child.wait()
             .map_err(|e| format!("Failed to wait for yt-dlp: {}", e))?;
         
         if status.success() {

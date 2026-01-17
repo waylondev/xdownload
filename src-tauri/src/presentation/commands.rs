@@ -52,7 +52,7 @@ pub async fn start_download(
 pub async fn get_download_progress(
     download_service: State<'_, Mutex<DownloadService>>,
     request: GetDownloadProgressRequest,
-) -> Option<DownloadTask> {
+) -> Result<Option<DownloadTask>, String> {
     let service = download_service.lock().await;
-    service.get_download_progress(&request.task_id).await
+    Ok(service.get_download_progress(&request.task_id).await)
 }

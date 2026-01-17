@@ -1,7 +1,5 @@
 // 应用层 - 业务逻辑服务（依赖领域层接口）
-use async_trait::async_trait;
 use std::sync::Arc;
-use tokio::sync::RwLock;
 
 use crate::domain::{
     entities::{DownloadTask, DownloadStatus, ParseResult},
@@ -64,15 +62,19 @@ impl DownloadService {
         self.task_repository.update(&task).await?;
         
         // 启动异步下载
-        let task_repository = Arc::clone(&self.task_repository);
-        let content_downloader = Arc::clone(&self.content_downloader);
+        let task_repository_clone = Arc::clone(&self.task_repository);
+        let content_downloader_clone = Arc::clone(&self.content_downloader);
         let task_id_clone = task_id.to_string();
         let url_clone = task.url.clone();
         let format_id_clone = format_id.map(|s| s.to_string());
         
         tokio::spawn(async move {
+            // 在闭包内部创建新的变量引用
+            let task_repository = Arc::clone(&task_repository_clone);
+            let task_id = task_id_clone.clone();
+            
             let progress_callback = Box::new(move |progress: f32, speed: String| {
-                let task_repository = Arc::clone(&task_repository);
+                let task_repository = Arc::clone(&task_repository_clone);
                 let task_id = task_id_clone.clone();
                 
                 tokio::spawn(async move {
@@ -83,19 +85,19 @@ impl DownloadService {
                 });
             });
             
-            match content_downloader.download_content(
+            match content_downloader_clone.download_content(
                 &url_clone, 
                 format_id_clone.as_deref(),
                 progress_callback
             ).await {
                 Ok(_) => {
-                    if let Some(mut task) = task_repository.find_by_id(&task_id_clone).await {
+                    if let Some(mut task) = task_repository.find_by_id(&task_id).await {
                         task.mark_completed();
                         let _ = task_repository.update(&task).await;
                     }
                 }
                 Err(e) => {
-                    if let Some(mut task) = task_repository.find_by_id(&task_id_clone).await {
+                    if let Some(mut task) = task_repository.find_by_id(&task_id).await {
                         task.mark_failed(e);
                         let _ = task_repository.update(&task).await;
                     }

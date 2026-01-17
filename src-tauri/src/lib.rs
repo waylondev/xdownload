@@ -3,13 +3,12 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 
 // 导入各层模块
-mod domain;
-mod application;
-mod infrastructure;
-mod presentation;
+pub mod domain;
+pub mod application;
+pub mod infrastructure;
+pub mod presentation;
 
 // 导入具体实现
-use domain::repository::{DownloadTaskRepository, UrlParser, ContentDownloader};
 use infrastructure::{
     repositories::InMemoryDownloadTaskRepository,
     yt_dlp::{YtDlpUrlParser, YtDlpContentDownloader}
