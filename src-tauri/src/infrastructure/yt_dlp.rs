@@ -22,7 +22,9 @@ impl YtDlpUrlParser {
 impl UrlParser for YtDlpUrlParser {
     async fn parse_url(&self, url: &str) -> Result<ParseResult, String> {
         // 使用yt-dlp解析URL
-        let output = Command::new("./bin/yt-dlp.exe")
+        let yt_dlp_path = "../bin/yt-dlp.exe";
+        
+        let output = Command::new(yt_dlp_path)
             .args(["--dump-json", url])
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
@@ -109,8 +111,16 @@ impl ContentDownloader for YtDlpContentDownloader {
         progress_callback: Box<dyn Fn(f32, String) + Send + Sync>
     ) -> Result<(), String> {
         // 构建yt-dlp命令
+        // 创建下载目录
+        let downloads_dir = "../downloads";
+        std::fs::create_dir_all(downloads_dir)
+            .map_err(|e| format!("Failed to create downloads directory: {}", e))?;
+        
+        // 设置下载输出路径
+        let output_path = "../downloads/%(title)s.%(ext)s";
+        
         let mut args = vec![
-            "-o", "./downloads/%(title)s.%(ext)s",
+            "-o", output_path,
             "--newline", // 输出进度信息
         ];
         
@@ -121,7 +131,9 @@ impl ContentDownloader for YtDlpContentDownloader {
         
         args.push(url);
         
-        let mut child = Command::new("./bin/yt-dlp.exe")
+        let yt_dlp_path = "../bin/yt-dlp.exe";
+        
+        let mut child = Command::new(yt_dlp_path)
             .args(&args)
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { invoke } from '@tauri-apps/api/core';
 import { Button } from './components/ui/button';
 import { Input } from './components/ui/input';
 import { Zap, Download, File, Clock } from 'lucide-react';
@@ -55,7 +56,7 @@ function App() {
     
     try {
       // 调用后端解析URL
-      const result = await (window as any).__TAURI_INVOKE__('parse_url', { url });
+      const result = await invoke('parse_url', { request: { url } });
       setParseResult(result);
       setStatus('ready');
       
@@ -83,9 +84,11 @@ function App() {
     
     try {
       // 调用后端开始下载
-      const taskId = await (window as any).__TAURI_INVOKE__('start_download', {
-        url,
-        format_id: selectedFormat
+      const taskId = await invoke('start_download', {
+        request: {
+          url,
+          format_id: selectedFormat
+        }
       });
 
       // 创建下载任务状态
@@ -106,8 +109,10 @@ function App() {
       // 轮询下载进度
       const progressInterval = setInterval(async () => {
         try {
-          const progress = await (window as any).__TAURI_INVOKE__('get_download_progress', { 
-            task_id: taskId 
+          const progress = await invoke('get_download_progress', { 
+            request: {
+              task_id: taskId 
+            }
           });
           
           if (progress) {
