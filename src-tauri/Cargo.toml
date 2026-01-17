@@ -5,6 +5,18 @@ description = "A Tauri App"
 authors = ["you"]
 edition = "2021"
 
+[profile.release]
+# 启用 LTO (链接时优化)
+lto = true
+# 优化级别
+opt-level = "z"
+# 移除调试信息
+strip = true
+# 代码生成优化
+codegen-units = 1
+# 启用 panic 中止（减小二进制大小）
+panic = "abort"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
