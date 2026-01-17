@@ -1,9 +1,9 @@
-// CommandService模块 - 命令执行的核心逻辑和Tauri接口
+// CommandService module - Core logic for command execution and Tauri interfaces
 use serde::Deserialize;
 use tauri::{AppHandle, Emitter, State};
 use tokio::sync::Mutex;
 
-/// 命令执行服务
+/// Command execution service
 pub struct CommandService {
     app_handle: AppHandle,
 }
@@ -13,39 +13,28 @@ impl CommandService {
         Self { app_handle }
     }
 
-    /// 执行命令并实时输出
+    /// Execute command with real-time output
     pub async fn execute_command(&self, command: &str) -> Result<(), String> {
         use tokio::process::Command;
         use tokio::io::{AsyncBufReadExt, BufReader};
 
         let parts: Vec<&str> = command.split_whitespace().collect();
         if parts.is_empty() {
-            return Err("命令不能为空".to_string());
+            return Err("Command cannot be empty".to_string());
         }
 
         let program = parts[0];
         let args = &parts[1..];
 
-        // 直接使用bin目录中的可执行文件
-        let current_dir = std::env::current_dir()
-            .map_err(|e| format!("获取当前目录失败: {}", e))?;
-        
-        let bin_path = current_dir
-            .join("bin")
-            .join(program);
-        
-        if !bin_path.exists() {
-            return Err(format!("{} 未找到，请确保bin目录中存在该文件", program));
-        }
-        
-        let mut cmd = Command::new(bin_path);
+        // Execute command directly, assuming yt-dlp is in system PATH
+        let mut cmd = Command::new(program);
         cmd.args(args);
         
         let mut child = cmd
             .stdout(std::process::Stdio::piped())
             .stderr(std::process::Stdio::piped())
             .spawn()
-            .map_err(|e| format!("启动命令失败: {}", e))?;
+            .map_err(|e| format!("Failed to start command: {}", e))?;
 
         let stdout = child.stdout.take().unwrap();
         let mut stdout_reader = BufReader::new(stdout).lines();
@@ -62,7 +51,7 @@ impl CommandService {
                         }
                         Ok(None) => break,
                         Err(_) => {
-                            // 忽略编码错误，继续执行
+                            // Ignore encoding errors and continue
                             continue;
                         }
                     }
@@ -70,11 +59,11 @@ impl CommandService {
                 result = stderr_reader.next_line() => {
                     match result {
                         Ok(Some(line)) => {
-                            let _ = self.app_handle.emit("terminal-output", &format!("错误: {}", line));
+                            let _ = self.app_handle.emit("terminal-output", &format!("Error: {}", line));
                         }
                         Ok(None) => break,
                         Err(_) => {
-                            // 忽略编码错误，继续执行
+                            // Ignore encoding errors and continue
                             continue;
                         }
                     }
@@ -83,14 +72,14 @@ impl CommandService {
                     match status {
                         Ok(status) => {
                             if status.success() {
-                                let _ = self.app_handle.emit("terminal-output", "命令执行成功");
+                                let _ = self.app_handle.emit("terminal-output", "Command executed successfully");
                             } else {
-                                let _ = self.app_handle.emit("terminal-output", &format!("命令执行失败，退出码: {}", status));
+                                let _ = self.app_handle.emit("terminal-output", &format!("Command execution failed, exit code: {}", status));
                             }
                             break;
                         }
                         Err(e) => {
-                            let _ = self.app_handle.emit("terminal-output", &format!("等待命令完成错误: {}", e));
+                            let _ = self.app_handle.emit("terminal-output", &format!("Error waiting for command completion: {}", e));
                             break;
                         }
                     }
@@ -102,13 +91,13 @@ impl CommandService {
     }
 }
 
-/// 执行命令请求
+/// Execute command request
 #[derive(Debug, Deserialize)]
 pub struct ExecuteCommandRequest {
     pub command: String,
 }
 
-/// Tauri命令接口
+/// Tauri command interface
 #[tauri::command]
 pub async fn execute_command(
     service: State<'_, Mutex<CommandService>>,

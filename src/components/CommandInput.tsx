@@ -17,13 +17,13 @@ export const CommandInput: React.FC<CommandInputProps> = ({
   onCopyCommand
 }) => {
   const quickCommands = [
-    { label: '🎵 音乐', cmd: 'yt-dlp --extract-audio --audio-format mp3' },
-    { label: '🎬 视频', cmd: 'yt-dlp -f best' },
-    { label: '🖼️ 图片', cmd: 'yt-dlp --write-thumbnail --skip-download' },
-    { label: '📺 高清', cmd: 'yt-dlp -f "bestvideo+bestaudio" --merge-output-format mp4' },
-    { label: '📱 手机', cmd: 'yt-dlp -f "best[height<=720]"' },
-    { label: '📄 字幕', cmd: 'yt-dlp --write-sub --sub-langs zh,en' },
-    { label: '🔍 信息', cmd: 'yt-dlp --list-formats' }
+    { label: '🎵 Music', cmd: 'yt-dlp --extract-audio --audio-format mp3' },
+    { label: '🎬 Video', cmd: 'yt-dlp -f best' },
+    { label: '🖼️ Images', cmd: 'yt-dlp --write-thumbnail --skip-download' },
+    { label: '📺 HD Quality', cmd: 'yt-dlp -f "bestvideo+bestaudio" --merge-output-format mp4' },
+    { label: '📱 Mobile', cmd: 'yt-dlp -f "best[height<=720]"' },
+    { label: '📄 Subtitles', cmd: 'yt-dlp --write-sub --sub-langs zh,en' },
+    { label: '🔍 Info', cmd: 'yt-dlp --list-formats' }
   ];
 
   return (
@@ -33,7 +33,7 @@ export const CommandInput: React.FC<CommandInputProps> = ({
           <textarea
             value={command}
             onChange={(e) => onCommandChange(e.target.value)}
-            placeholder="输入下载命令，例如: yt-dlp https://www.bilibili.com/video/BV1HZrpBTEDe/?spm_id_from=333.1007.tianma.1-1-1.click"
+            placeholder="Enter download command, e.g.: yt-dlp https://www.bilibili.com/video/BV1HZrpBTEDe/?spm_id_from=333.1007.tianma.1-1-1.click"
             className="w-full h-20 p-3 bg-gray-700/50 border border-gray-600 rounded-lg text-gray-100 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 transition-all text-sm font-mono resize-y"
             onKeyDown={(e) => {
               if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {

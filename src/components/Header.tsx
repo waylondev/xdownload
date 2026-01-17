@@ -18,12 +18,12 @@ export const Header: React.FC<HeaderProps> = ({ isRunning }) => {
         </div>
       </div>
       
-      {/* 状态指示器 */}
+      {/* Status indicator */}
       <div className="flex items-center gap-4">
         {isRunning && (
           <div className="flex items-center gap-2 text-blue-400">
             <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-            <span className="text-sm">执行中</span>
+            <span className="text-sm">Executing</span>
           </div>
         )}
       </div>

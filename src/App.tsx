@@ -11,7 +11,7 @@ function App() {
   const [output, setOutput] = useState<string[]>([]);
   const [isRunning, setIsRunning] = useState(false);
 
-  // 监听终端输出事件
+  // Listen for terminal output events
   useEffect(() => {
     const setupEventListener = async () => {
       try {
@@ -21,14 +21,14 @@ function App() {
 
         return unlisten;
       } catch (error) {
-        console.error('设置事件监听失败:', error);
+        console.error('Failed to setup event listener:', error);
       }
     };
 
     setupEventListener();
   }, []);
 
-  // 执行命令
+  // Execute command
   const executeCommand = async () => {
     if (!command.trim()) return;
     
@@ -37,20 +37,20 @@ function App() {
     
     try {
       await invoke('execute_command', { request: { command } });
-      setOutput(prev => [...prev, '命令执行完成']);
+      setOutput(prev => [...prev, 'Command execution completed']);
     } catch (error) {
-      setOutput(prev => [...prev, `错误: ${error}`]);
+      setOutput(prev => [...prev, `Error: ${error}`]);
     } finally {
       setIsRunning(false);
     }
   };
 
-  // 清空输出
+  // Clear output
   const clearOutput = () => {
     setOutput([]);
   };
 
-  // 复制命令
+  // Copy command
   const copyCommand = () => {
     navigator.clipboard.writeText(command);
   };
