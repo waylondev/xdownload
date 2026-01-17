@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { invoke, dialog } from '@tauri-apps/api';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Settings, Save, Folder } from 'lucide-react';
@@ -32,7 +33,6 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
 
   const loadConfig = async () => {
     try {
-      const { invoke } = await import('@tauri-apps/api/core');
       const currentConfig = await invoke('get_config');
       if (currentConfig) {
         setConfig(currentConfig);
@@ -45,7 +45,6 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
   const saveConfig = async () => {
     setIsLoading(true);
     try {
-      const { invoke } = await import('@tauri-apps/api/core');
       await invoke('save_config', {
         config
       });
@@ -60,8 +59,7 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
 
   const selectFolder = async (field: keyof AppConfig) => {
     try {
-      const { open } = await import('@tauri-apps/api/dialog');
-      const selected = await open({
+      const selected = await dialog.open({
         directory: true,
         multiple: false
       });

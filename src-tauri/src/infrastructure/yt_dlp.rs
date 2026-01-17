@@ -4,6 +4,7 @@ use std::str;
 use async_trait::async_trait;
 use tokio::io::{AsyncBufReadExt, BufReader};
 use log::{info, warn, error, debug};
+use tauri::Emitter;
 
 use crate::domain::{
     entities::{ParseResult, VideoFormat},
@@ -118,12 +119,12 @@ impl YtDlpContentDownloader {
 #[async_trait]
 impl ContentDownloader for YtDlpContentDownloader {
     async fn download_content(
-        &self, 
-        url: &str, 
+        &self,
+        url: &str,
         format_id: &str,
         yt_dlp_path: &str,
         download_path: &str,
-        progress_callback: Box<dyn Fn(f32, String) + Send + Sync>
+        task_id: &str,
     ) -> Result<(), String> {
         info!("开始下载内容: URL={}, 格式={}, yt-dlp路径={}, 下载路径={}", 
               url, format_id, yt_dlp_path, download_path);

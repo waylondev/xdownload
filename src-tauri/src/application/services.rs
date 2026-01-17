@@ -1,99 +1,103 @@
-// 应用层 - 业务逻辑服务（依赖领域层接口）
+// 应用层 - 业务逻辑服务
 use std::sync::Arc;
-
-use crate::domain::{
-    entities::{AppConfig, DownloadTask, ParseResult},
-    repository::{ConfigRepository, DownloadTaskRepository, UrlParser, ContentDownloader}
-};
+use tauri::Emitter;
 
 /// 下载服务
-pub struct DownloadService {
-    config_repository: Arc<dyn ConfigRepository>,
-    task_repository: Arc<dyn DownloadTaskRepository>,
-    url_parser: Arc<dyn UrlParser>,
-    content_downloader: Arc<dyn ContentDownloader>,
-}
+pub struct DownloadService;
 
 impl DownloadService {
-    pub fn new(
-        config_repository: Arc<dyn ConfigRepository>,
-        task_repository: Arc<dyn DownloadTaskRepository>,
-        url_parser: Arc<dyn UrlParser>,
-        content_downloader: Arc<dyn ContentDownloader>,
-    ) -> Self {
-        Self {
-            config_repository,
-            task_repository,
-            url_parser,
-            content_downloader,
+    pub fn new() -> Self {
+        Self
+    }
+
+    /// 执行命令
+    pub async fn execute_command(&self, command: &str) -> Result<(), String> {
+        // 解析命令（简单处理，直接执行）
+        let parts: Vec<&str> = command.split_whitespace().collect();
+        if parts.is_empty() {
+            return Err("命令不能为空".to_string());
         }
-    }
-    
-    /// 获取应用配置
-    pub async fn get_config(&self) -> Result<AppConfig, String> {
-        self.config_repository.load_config().await
+
+        // 获取命令和参数
+        let program = parts[0];
+        let args = &parts[1..];
+
+        // 执行命令
+        self.execute_system_command(program, args).await
     }
 
-    /// 保存应用配置
-    pub async fn save_config(&self, config: &AppConfig) -> Result<(), String> {
-        self.config_repository.save_config(config).await
-    }
+    /// 执行系统命令并实时输出
+    async fn execute_system_command(&self, program: &str, args: &[&str]) -> Result<(), String> {
+        use tokio::process::Command;
+        use tokio::io::{AsyncBufReadExt, BufReader};
 
-    /// 解析URL获取视频信息
-    pub async fn parse_url(&self, url: &str) -> Result<ParseResult, String> {
-        let config = self.config_repository.load_config().await?;
-        self.url_parser.parse_url(url, &config.yt_dlp_path).await
-    }
-    
-    /// 开始下载
-    pub async fn start_download(&self, url: &str) -> Result<String, String> {
-        // 获取配置
-        let config = self.config_repository.load_config().await?;
+        // 创建命令
+        let mut cmd = Command::new(program);
+        cmd.args(args);
         
-        // 生成任务ID
-        let task_id = format!(
-            "task_{}",
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .as_millis()
-        );
-        
-        // 克隆字符串以避免生命周期问题
-        let url_clone = url.to_string();
-        
-        // 启动异步下载 - 使用best格式让yt-dlp智能选择
-        let downloader = Arc::clone(&self.content_downloader);
-        let config_clone = config.clone();
-        
-        tokio::spawn(async move {
-            let progress_callback = Box::new(|_progress: f32, _speed: String| {
-                // 简单的进度回调
-            });
-            
-            let _ = downloader.download_content(&url_clone, "best", &config_clone.yt_dlp_path, &config_clone.download_path, progress_callback).await;
-        });
-        
-        Ok(task_id)
-    }
-    
-    /// 获取下载进度
-    pub async fn get_download_progress(&self, task_id: &str) -> Option<DownloadTask> {
-        self.task_repository.find_by_id(task_id).await.ok().flatten()
-    }
-}
+        // 设置输出管道
+        let mut child = cmd
+            .stdout(std::process::Stdio::piped())
+            .stderr(std::process::Stdio::piped())
+            .spawn()
+            .map_err(|e| format!("启动命令失败: {}", e))?;
 
-/// 进度追踪器服务
-pub struct ProgressTracker {
-    task_repository: Arc<dyn DownloadTaskRepository>,
-}
+        // 读取标准输出
+        let stdout = child.stdout.take().unwrap();
+        let mut stdout_reader = BufReader::new(stdout).lines();
+        
+        // 读取标准错误
+        let stderr = child.stderr.take().unwrap();
+        let mut stderr_reader = BufReader::new(stderr).lines();
 
-impl ProgressTracker {
-    pub fn new(task_repository: Arc<dyn DownloadTaskRepository>) -> Self {
-        Self { task_repository }
-    }
-    
-    pub async fn get_progress(&self, task_id: &str) -> Option<DownloadTask> {
-        self.task_repository.find_by_id(task_id).await.ok().flatten()
+        // 实时读取输出
+        loop {
+            tokio::select! {
+                result = stdout_reader.next_line() => {
+                    match result {
+                        Ok(Some(line)) => {
+                            // 发送输出到前端
+                            let _ = tauri::emit("terminal-output", &line);
+                        }
+                        Ok(None) => break,
+                        Err(e) => {
+                            let _ = tauri::emit("terminal-output", &format!("读取输出错误: {}", e));
+                            break;
+                        }
+                    }
+                }
+                result = stderr_reader.next_line() => {
+                    match result {
+                        Ok(Some(line)) => {
+                            // 发送错误输出到前端
+                            let _ = tauri::emit("terminal-output", &format!("错误: {}", line));
+                        }
+                        Ok(None) => break,
+                        Err(e) => {
+                            let _ = tauri::emit("terminal-output", &format!("读取错误输出错误: {}", e));
+                            break;
+                        }
+                    }
+                }
+                status = child.wait() => {
+                    match status {
+                        Ok(status) => {
+                            if status.success() {
+                                let _ = tauri::emit("terminal-output", "命令执行成功");
+                            } else {
+                                let _ = tauri::emit("terminal-output", &format!("命令执行失败，退出码: {}", status));
+                            }
+                            break;
+                        }
+                        Err(e) => {
+                            let _ = tauri::emit("terminal-output", &format!("等待命令完成错误: {}", e));
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        Ok(())
     }
 }
