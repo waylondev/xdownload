@@ -46,11 +46,7 @@ impl DownloadService {
     }
     
     /// 开始下载
-    pub async fn start_download(
-        &self,
-        url: &str,
-        format_id: &str
-    ) -> Result<String, String> {
+    pub async fn start_download(&self, url: &str) -> Result<String, String> {
         // 获取配置
         let config = self.config_repository.load_config().await?;
         
@@ -65,9 +61,8 @@ impl DownloadService {
         
         // 克隆字符串以避免生命周期问题
         let url_clone = url.to_string();
-        let format_id_clone = format_id.to_string();
         
-        // 启动异步下载
+        // 启动异步下载 - 使用best格式让yt-dlp智能选择
         let downloader = Arc::clone(&self.content_downloader);
         let config_clone = config.clone();
         
@@ -76,7 +71,7 @@ impl DownloadService {
                 // 简单的进度回调
             });
             
-            let _ = downloader.download_content(&url_clone, &format_id_clone, &config_clone.yt_dlp_path, &config_clone.download_path, progress_callback).await;
+            let _ = downloader.download_content(&url_clone, "best", &config_clone.yt_dlp_path, &config_clone.download_path, progress_callback).await;
         });
         
         Ok(task_id)

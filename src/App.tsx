@@ -42,7 +42,6 @@ function App() {
   // 状态
   const [url, setUrl] = useState('');
   const [parseResult, setParseResult] = useState<ParseResult | null>(null);
-  const [selectedFormat, setSelectedFormat] = useState<string>('');
   const [downloadTask, setDownloadTask] = useState<DownloadTask | null>(null);
   const [status, setStatus] = useState<DownloadStatus>('idle');
   const [showConfig, setShowConfig] = useState(false);
@@ -80,8 +79,8 @@ function App() {
 
   // 开始下载
   const handleDownload = async () => {
-    if (!parseResult || !selectedFormat) {
-      alert('请先解析URL并选择下载格式');
+    if (!parseResult) {
+      alert('请先解析URL');
       return;
     }
 
@@ -90,10 +89,7 @@ function App() {
     try {
       // 调用后端开始下载
       const taskId = await invoke('start_download', {
-        request: {
-          url,
-          format_id: selectedFormat
-        }
+        request: { url }
       });
 
       // 创建下载任务状态
@@ -248,43 +244,16 @@ function App() {
                     </div>
                   </div>
                   
-                  {/* 格式选择 */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-slate-300">
-                      选择下载格式：
-                    </label>
-                    <div className="grid gap-2 max-h-40 overflow-y-auto">
-                      {parseResult.formats.map((format) => (
-                        <label key={format.format_id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-700/50 cursor-pointer">
-                          <input
-                            type="radio"
-                            name="format"
-                            value={format.format_id}
-                            checked={selectedFormat === format.format_id}
-                            onChange={(e) => setSelectedFormat(e.target.value)}
-                            className="text-blue-500"
-                          />
-                          <div className="flex-1">
-                            <div className="text-sm text-slate-100">
-                              {format.format_note || format.ext.toUpperCase()}
-                            </div>
-                            <div className="text-xs text-slate-400">
-                              {format.resolution && `${format.resolution} • `}
-                              {formatFileSize(format.filesize)}
-                            </div>
-                          </div>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                  
                   <Button
                     onClick={handleDownload}
                     className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white border-0 rounded-xl h-12 transition-all duration-300 shadow-lg hover:shadow-green-500/30"
                   >
                     <Download className="w-4 h-4 mr-2" />
-                    开始下载
+                    下载视频 (智能选择最佳格式)
                   </Button>
+                  <p className="text-slate-400 text-xs text-center mt-2">
+                    yt-dlp将自动选择最佳音视频质量
+                  </p>
                 </div>
               )}
               

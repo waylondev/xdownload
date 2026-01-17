@@ -16,7 +16,6 @@ pub struct ParseUrlRequest {
 #[derive(Debug, Deserialize)]
 pub struct StartDownloadRequest {
     pub url: String,
-    pub format_id: Option<String>,
 }
 
 /// 获取下载进度请求
@@ -69,8 +68,7 @@ pub async fn start_download(
     request: StartDownloadRequest,
 ) -> Result<String, String> {
     let service = download_service.lock().await;
-    let format_id = request.format_id.unwrap_or_else(|| "best".to_string());
-    service.start_download(&request.url, &format_id).await
+    service.start_download(&request.url).await
 }
 
 

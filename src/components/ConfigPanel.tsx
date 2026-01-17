@@ -32,7 +32,8 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
 
   const loadConfig = async () => {
     try {
-      const currentConfig = await (window as any).__TAURI__?.invoke('get_config');
+      const { invoke } = await import('@tauri-apps/api/core');
+      const currentConfig = await invoke('get_config');
       if (currentConfig) {
         setConfig(currentConfig);
       }
@@ -44,7 +45,8 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
   const saveConfig = async () => {
     setIsLoading(true);
     try {
-      await (window as any).__TAURI__?.invoke('save_config', {
+      const { invoke } = await import('@tauri-apps/api/core');
+      await invoke('save_config', {
         config
       });
       onClose();
@@ -58,12 +60,13 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
 
   const selectFolder = async (field: keyof AppConfig) => {
     try {
-      const selected = await (window as any).__TAURI__?.dialog.open({
+      const { open } = await import('@tauri-apps/api/dialog');
+      const selected = await open({
         directory: true,
         multiple: false
       });
       
-      if (selected) {
+      if (selected && !Array.isArray(selected)) {
         setConfig(prev => ({ ...prev, [field]: selected }));
       }
     } catch (error) {
