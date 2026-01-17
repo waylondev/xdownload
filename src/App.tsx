@@ -31,7 +31,7 @@ function App() {
     setOutput(prev => [...prev, `$ ${command}`]);
     
     try {
-      await invoke('execute_command', { command });
+      await invoke('run_yt_dlp_command', { command });
       setOutput(prev => [...prev, '命令执行完成']);
     } catch (error) {
       setOutput(prev => [...prev, `错误: ${error}`]);
