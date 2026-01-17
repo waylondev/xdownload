@@ -17,13 +17,13 @@ export const CommandInput: React.FC<CommandInputProps> = ({
   onCopyCommand
 }) => {
   const quickCommands = [
-    { label: '🎵 Music', cmd: 'yt-dlp --extract-audio --audio-format mp3 --audio-quality 0 https://music.163.com/#/song?id=1330348068' },
-    { label: '🎬 Video', cmd: 'yt-dlp -f "bestvideo+bestaudio" --merge-output-format mp4 https://www.bilibili.com/video/BV1HZrpBTEDe' },
-    { label: '🖼️ Images', cmd: 'yt-dlp --write-thumbnail --skip-download --convert-thumbnails jpg https://www.bilibili.com/video/BV1HZrpBTEDe' },
-    { label: '📺 HD Quality', cmd: 'yt-dlp -f "bestvideo[height<=1080]+bestaudio/best[height<=1080]" --merge-output-format mp4 https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
-    { label: '📱 Mobile', cmd: 'yt-dlp -f "bestvideo[height<=720]+bestaudio/best[height<=720]" --merge-output-format mp4 https://www.bilibili.com/video/BV1HZrpBTEDe' },
-    { label: '📄 Subtitles', cmd: 'yt-dlp --write-sub --sub-langs zh,en --convert-subs srt https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
-    { label: '🔍 Info', cmd: 'yt-dlp --list-formats https://www.bilibili.com/video/BV1HZrpBTEDe' }
+    { label: '🎵 Music', cmd: 'yt-dlp --extract-audio --audio-format mp3 https://www.bilibili.com/video/BV1Ek4y1r7Rg' },
+    { label: '🎬 Video', cmd: 'yt-dlp https://www.bilibili.com/video/BV1Ek4y1r7Rg' },
+    { label: '🖼️ Images', cmd: 'yt-dlp --write-thumbnail --skip-download https://www.bilibili.com/video/BV1Ek4y1r7Rg' },
+    { label: '📺 HD Quality', cmd: 'yt-dlp -f "best[height<=1080]" https://www.bilibili.com/video/BV1Ek4y1r7Rg' },
+    { label: '📱 Mobile', cmd: 'yt-dlp -f "best[height<=720]" https://www.bilibili.com/video/BV1Ek4y1r7Rg' },
+    { label: '📄 Subtitles', cmd: 'yt-dlp --write-sub --sub-langs zh,en https://www.bilibili.com/video/BV1Ek4y1r7Rg' },
+    { label: '🔍 Info', cmd: 'yt-dlp --list-formats https://www.bilibili.com/video/BV1Ek4y1r7Rg' }
   ];
 
   return (
