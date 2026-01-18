@@ -7,28 +7,12 @@ on:
 
 env:
   NODE_VERSION: '18'
-  PNPM_VERSION: '8'
   RUST_TOOLCHAIN: 'stable'
 
 jobs:
-  build-and-release:
-    name: Build and Release
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
-        include:
-          - os: windows-latest
-            artifact_name: windows
-            file_patterns: '*.exe,*.msi'
-          - os: ubuntu-latest
-            artifact_name: linux
-            file_patterns: '*.AppImage,*.deb'
-          - os: macos-latest
-            artifact_name: macos
-            file_patterns: '*.dmg,*.app.tar.gz'
-    
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -40,21 +24,58 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: ${{ env.PNPM_VERSION }}
+      - name: Install pnpm
+        run: npm install -g pnpm@8
 
       - name: Setup Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
-          components: rustfmt, clippy
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run type check
+        run: pnpm type-check
+
+      - name: Build frontend
+        run: pnpm build
+
+      - name: Build Tauri application
+        run: pnpm tauri build
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: src-tauri/target/release/bundle/
+          retention-days: 7
+
+  build-linux:
+    name: Build Linux
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install pnpm
+        run: npm install -g pnpm@8
+
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
 
       - name: Install system dependencies
-        if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -80,19 +101,17 @@ jobs:
       - name: Build Tauri application
         run: pnpm tauri build
 
-      - name: Upload build artifacts
+      - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact_name }}-build
-          path: |
-            src-tauri/target/release/bundle/
-            !src-tauri/target/release/bundle/**/*.zip
+          name: linux-build
+          path: src-tauri/target/release/bundle/
           retention-days: 7
 
   create-release:
     name: Create Release
     runs-on: ubuntu-latest
-    needs: build-and-release
+    needs: [build-windows, build-linux]
     permissions:
       contents: write
     
@@ -100,10 +119,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download all build artifacts
+      - name: Download Windows artifacts
         uses: actions/download-artifact@v4
         with:
-          path: ./artifacts
+          name: windows-build
+          path: ./artifacts/windows
+
+      - name: Download Linux artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-build
+          path: ./artifacts/linux
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
@@ -123,7 +149,6 @@ jobs:
             
             - **Windows**: `.exe` installer or `.msi` package
             - **Linux**: `.AppImage` or `.deb` package
-            - **macOS**: `.dmg` installer
             
             ## 🔧 Prerequisites
             
@@ -139,6 +164,4 @@ jobs:
             artifacts/**/*.msi
             artifacts/**/*.AppImage
             artifacts/**/*.deb
-            artifacts/**/*.dmg
-            artifacts/**/*.tar.gz
           generate_release_notes: true
