@@ -125,6 +125,51 @@ Common issues:
 - Some platforms (like Douyin) may require cookies for download
 - FFmpeg is recommended for video merging operations
 
+## Release
+
+### Automated Release Process
+
+XDownload 使用 GitHub Actions 自动构建和发布。只需推送版本标签即可自动创建 release：
+
+1. **提交代码更改**
+   ```bash
+   git add .
+   git commit -m "Release v1.0.0"
+   ```
+
+2. **创建并推送版本标签**
+   ```bash
+   # 创建语义化版本标签
+   git tag v1.0.0
+   
+   # 推送标签触发自动构建
+   git push origin v1.0.0
+   ```
+
+3. **监控构建状态**
+   - 访问 GitHub Actions 页面查看构建进度
+   - 构建完成后，在 Releases 页面下载 Windows 安装包
+
+### 构建产物
+
+自动构建会生成以下 Windows 安装包：
+- `xdownload_1.0.0_x64-setup.exe` - Windows 安装程序
+- `xdownload_1.0.0_x64.msi` - Windows MSI 安装包
+
+### 手动构建（开发环境）
+
+如需在本地测试构建：
+```bash
+# 安装依赖
+pnpm install
+
+# 构建应用
+pnpm tauri build
+
+# 构建文件位于
+# src-tauri/target/release/bundle/
+```
+
 ## License
 
 MIT License
