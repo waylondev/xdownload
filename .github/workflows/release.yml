@@ -63,14 +63,14 @@ jobs:
             ## 📦 Downloads
             
             **Windows Installers:**
-            - `xdownload_${{ github.ref_name }}_x64-setup.exe` - Windows 安装程序
-            - `xdownload_${{ github.ref_name }}_x64.msi` - Windows MSI 安装包
+            - `xdownload_${{ github.ref_name }}_x64-setup.exe` - Windows installer
+            - `xdownload_${{ github.ref_name }}_x64.msi` - Windows MSI package
             
-            ## � Prerequisites
+            ## 🔧 Prerequisites
             
             Before using XDownload, ensure you have [yt-dlp](https://github.com/yt-dlp/yt-dlp) installed on your system.
             
-            ## �️ Usage
+            ## 🛠️ Usage
             
             1. Download and install the application
             2. Launch XDownload

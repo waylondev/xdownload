@@ -129,44 +129,44 @@ Common issues:
 
 ### Automated Release Process
 
-XDownload 使用 GitHub Actions 自动构建和发布。只需推送版本标签即可自动创建 release：
+XDownload uses GitHub Actions for automated builds and releases. Simply push a version tag to automatically create a release:
 
-1. **提交代码更改**
+1. **Commit code changes**
    ```bash
    git add .
    git commit -m "Release v1.0.0"
    ```
 
-2. **创建并推送版本标签**
+2. **Create and push version tag**
    ```bash
-   # 创建语义化版本标签
+   # Create semantic version tag
    git tag v1.0.0
    
-   # 推送标签触发自动构建
+   # Push tag to trigger automated build
    git push origin v1.0.0
    ```
 
-3. **监控构建状态**
-   - 访问 GitHub Actions 页面查看构建进度
-   - 构建完成后，在 Releases 页面下载 Windows 安装包
+3. **Monitor build status**
+   - Check GitHub Actions page for build progress
+   - Download Windows installer from Releases page after build completes
 
-### 构建产物
+### Build Artifacts
 
-自动构建会生成以下 Windows 安装包：
-- `xdownload_1.0.0_x64-setup.exe` - Windows 安装程序
-- `xdownload_1.0.0_x64.msi` - Windows MSI 安装包
+Automated builds generate the following Windows installers:
+- `xdownload_1.0.0_x64-setup.exe` - Windows installer
+- `xdownload_1.0.0_x64.msi` - Windows MSI package
 
-### 手动构建（开发环境）
+### Manual Build (Development)
 
-如需在本地测试构建：
+For local testing and building:
 ```bash
-# 安装依赖
+# Install dependencies
 pnpm install
 
-# 构建应用
+# Build application
 pnpm tauri build
 
-# 构建文件位于
+# Build files located at
 # src-tauri/target/release/bundle/
 ```
 
