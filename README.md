@@ -6,7 +6,8 @@ XDownload is a minimalist download tool built with Rust + Tauri, focused on medi
 
 ## Demo
 
-![Demo](assets/demo.mp4)
+![Demo gif](assets/demo.gif)
+![Demo mp4](assets/demo.mp4)
 
 ## Features
 
